@@ -1,7 +1,7 @@
 ---
-title: "Google Search API: overview and getting started"
+title: "Google Search API: Overview, Endpoints, and Structure"
 sidebarTitle: "API Overview"
-description: "Learn what the Google Search API can do, how it's structured, and how to make your first request against the base URL."
+description: "Learn what the Google Search API can do, how it's structured, and how to make your first request against the base URL using an API key."
 ---
 
 The Google Search API gives you programmatic access to Google's web search engine, letting you embed real-time search results, structured data, and query suggestions directly into your application. Whether you're building a custom search experience, surfacing relevant content inside a product, or automating research workflows, the API returns clean JSON responses you can parse and display however you like.
@@ -51,10 +51,11 @@ The table below summarises every endpoint in v1. Click an endpoint name to jump 
 
 | Endpoint | Method | Path | Description |
 |---|---|---|---|
-| **Search** | `GET` | `/customsearch/v1` | Run a web search and return ranked results. |
-| **Results** | `GET` | `/customsearch/v1/siterestrict` | Search within a specific site or subset of sites. |
-| **Suggestions** | `GET` | `/customsearch/v1/suggest` | Retrieve query autocomplete suggestions for a partial term. |
-| **Webhooks** | `POST` | `/customsearch/v1/webhooks` | Register a URL to receive push notifications when saved queries return new results. |
+| [**Search**](/api/search) | `GET` | `/customsearch/v1` | Run a web search and return ranked results. |
+| [**Results**](/api/results) | `GET` | `/customsearch/v1/siterestrict` | Search within a specific site or subset of sites. |
+| [**Suggestions**](/api/suggestions) | `GET` | `/customsearch/v1/suggest` | Retrieve query autocomplete suggestions for a partial term. |
+| [**Create Webhook**](/api/webhooks) | `POST` | `/customsearch/v1/webhooks` | Register a URL to receive push notifications when saved queries return new results. |
+| [**Delete Webhook**](/api/webhooks) | `DELETE` | `/customsearch/v1/webhooks/{id}` | Remove a previously registered webhook by its unique ID. |
 
 <Tip>
   Start with the **Search** endpoint. It supports the broadest set of parameters and is the fastest way to validate your integration before moving on to more specialised endpoints.

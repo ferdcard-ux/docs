@@ -1,5 +1,5 @@
 ---
-title: "Authenticate with the Google Search API"
+title: "API Authentication: Keys, OAuth, and Security Best Practices"
 sidebarTitle: "Authentication"
 description: "Learn how to generate API keys, pass credentials in requests, handle common auth errors, and follow best practices to keep your keys secure."
 ---
@@ -13,6 +13,20 @@ The Google Search API uses **API key authentication** for server-to-server and s
 <Note>
   For user-facing applications that access personal data (such as a user's search history or saved preferences), you must use **OAuth 2.0** instead of a plain API key. See the [API authentication reference](/api/authentication) for details on OAuth 2.0. This page covers API key authentication only.
 </Note>
+
+## Endpoints that require authentication
+
+Every request to the Google Search API — regardless of the endpoint — must include valid credentials. The following public endpoints all use the same API key authentication described in this guide:
+
+| Method | Endpoint | Description |
+|---|---|---|
+| `GET` | `/search` | Run a web search query and return ranked results |
+| `GET` | `/results` | Retrieve a specific result set by ID or page token |
+| `GET` | `/suggestions` | Fetch autocomplete suggestions for a partial query string |
+| `POST` | `/webhooks` | Register a webhook URL to receive real-time result notifications |
+| `DELETE` | `/webhooks/{id}` | Remove a previously registered webhook by its ID |
+
+See the [API Reference](/api/introduction) for full parameter and response documentation for each endpoint.
 
 ## Generate an API key
 
@@ -121,10 +135,10 @@ You can authenticate requests using either an HTTP header or a query parameter. 
 When a request fails authentication, the API returns a JSON error body alongside an HTTP error status. Here are the two errors you'll encounter most often and how to resolve them:
 
 <CardGroup cols={2}>
-  <Card title="401 Unauthorized" icon="circle-xmark" href="#401-unauthorized">
+  <Card title="401 Unauthorized" icon="circle-xmark" href="/help/troubleshooting">
     The key is missing, malformed, or has been revoked.
   </Card>
-  <Card title="403 Forbidden" icon="ban" href="#403-forbidden">
+  <Card title="403 Forbidden" icon="ban" href="/help/troubleshooting">
     The key is valid but doesn't have permission to access this resource.
   </Card>
 </CardGroup>
@@ -176,16 +190,16 @@ When a request fails authentication, the API returns a JSON error body alongside
 Following these practices protects your account, prevents quota theft, and makes incident response much easier if a key is ever exposed.
 
 <CardGroup cols={2}>
-  <Card title="Keep keys secret" icon="lock" href="#keep-keys-secret">
+  <Card title="Keep keys secret" icon="lock" href="/api/authentication">
     Store keys in environment variables or a secrets manager — never in source code.
   </Card>
-  <Card title="Rotate regularly" icon="arrows-rotate" href="#rotate-regularly">
+  <Card title="Rotate regularly" icon="arrows-rotate" href="/api/authentication">
     Replace your keys on a schedule and immediately after any suspected exposure.
   </Card>
-  <Card title="Restrict by IP or referrer" icon="shield" href="#restrict-by-ip-or-referrer">
+  <Card title="Restrict by IP or referrer" icon="shield" href="/configuration/settings">
     Limit where each key can be used to minimize blast radius if it leaks.
   </Card>
-  <Card title="Use one key per environment" icon="layer-group" href="#use-one-key-per-environment">
+  <Card title="Use one key per environment" icon="layer-group" href="/configuration/settings">
     Create separate keys for development, staging, and production.
   </Card>
 </CardGroup>

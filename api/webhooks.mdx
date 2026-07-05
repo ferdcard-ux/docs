@@ -1,5 +1,5 @@
 ---
-title: "Webhooks: receive Google Alert notifications"
+title: "Webhooks — Register and Manage Alert Notifications"
 sidebarTitle: "Webhooks"
 description: "Register webhook endpoints to receive real-time HTTP notifications when Google Alerts are triggered, created, or deleted — no polling required."
 ---
@@ -62,7 +62,7 @@ POST https://www.googleapis.com/customsearch/v1/webhooks
 
 ```bash curl
 curl -X POST "https://www.googleapis.com/customsearch/v1/webhooks" \
-  -H "Authorization: Bearer YOUR_ACCESS_TOKEN" \
+  -H "Authorization: Bearer ya29.A0ARrdaM-EXAMPLE-OAuth2-Token" \
   -H "Content-Type: application/json" \
   -d '{
     "url": "https://yourapp.example.com/webhooks/google",
@@ -83,7 +83,7 @@ payload = {
 response = requests.post(
     "https://www.googleapis.com/customsearch/v1/webhooks",
     json=payload,
-    headers={"Authorization": "Bearer YOUR_ACCESS_TOKEN"},
+    headers={"Authorization": "Bearer ya29.A0ARrdaM-EXAMPLE-OAuth2-Token"},
 )
 response.raise_for_status()
 webhook = response.json()
@@ -96,7 +96,7 @@ const response = await fetch(
   {
     method: "POST",
     headers: {
-      Authorization: "Bearer YOUR_ACCESS_TOKEN",
+      Authorization: "Bearer ya29.A0ARrdaM-EXAMPLE-OAuth2-Token",
       "Content-Type": "application/json",
     },
     body: JSON.stringify({
@@ -146,7 +146,7 @@ DELETE https://www.googleapis.com/customsearch/v1/webhooks/{id}
 ```bash curl
 curl -X DELETE \
   "https://www.googleapis.com/customsearch/v1/webhooks/wh_01HZ9KQXM3ABCDEF012345" \
-  -H "Authorization: Bearer YOUR_ACCESS_TOKEN"
+  -H "Authorization: Bearer ya29.A0ARrdaM-EXAMPLE-OAuth2-Token"
 ```
 
 ```python Python
@@ -156,7 +156,7 @@ webhook_id = "wh_01HZ9KQXM3ABCDEF012345"
 
 response = requests.delete(
     f"https://www.googleapis.com/customsearch/v1/webhooks/{webhook_id}",
-    headers={"Authorization": "Bearer YOUR_ACCESS_TOKEN"},
+    headers={"Authorization": "Bearer ya29.A0ARrdaM-EXAMPLE-OAuth2-Token"},
 )
 response.raise_for_status()
 print("Webhook deleted.")
@@ -169,7 +169,7 @@ await fetch(
   `https://www.googleapis.com/customsearch/v1/webhooks/${webhookId}`,
   {
     method: "DELETE",
-    headers: { Authorization: "Bearer YOUR_ACCESS_TOKEN" },
+    headers: { Authorization: "Bearer ya29.A0ARrdaM-EXAMPLE-OAuth2-Token" },
   }
 );
 console.log("Webhook deleted.");

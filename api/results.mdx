@@ -1,5 +1,5 @@
 ---
-title: "GET /results — fetch result metadata by URL"
+title: "GET /results — Fetch Structured Web Page Metadata"
 sidebarTitle: "GET /results"
 description: "Retrieve structured metadata for a specific web page URL, including title, snippet, authorship, publication date, language, and preview image."
 ---
@@ -70,7 +70,7 @@ GET https://www.googleapis.com/customsearch/v1/results
 ```bash curl
 curl -G "https://www.googleapis.com/customsearch/v1/results" \
   --data-urlencode "url=https://developers.google.com/custom-search/v1/overview" \
-  --data-urlencode "key=YOUR_API_KEY" \
+  --data-urlencode "key=AIzaSyD-9tSrke72I6zb8Z9bM4jdO1EXAMPLE" \
   --data-urlencode "fields=title,url,snippet,metadata"
 ```
 
@@ -79,7 +79,7 @@ import requests
 
 params = {
     "url": "https://developers.google.com/custom-search/v1/overview",
-    "key": "YOUR_API_KEY",
+    "key": "AIzaSyD-9tSrke72I6zb8Z9bM4jdO1EXAMPLE",
     "fields": "title,url,snippet,metadata",
 }
 
@@ -97,7 +97,7 @@ print(data["metadata"]["datePublished"])
 ```javascript JavaScript
 const params = new URLSearchParams({
   url: "https://developers.google.com/custom-search/v1/overview",
-  key: "YOUR_API_KEY",
+  key: "AIzaSyD-9tSrke72I6zb8Z9bM4jdO1EXAMPLE",
   fields: "title,url,snippet,metadata",
 });
 

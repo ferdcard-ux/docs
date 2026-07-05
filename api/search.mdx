@@ -1,5 +1,5 @@
 ---
-title: "GET /search — query the Google Search index"
+title: "GET /search — Query the Google Custom Search Index"
 sidebarTitle: "GET /search"
 description: "Submit a search query to the Google Custom Search API and retrieve ranked web results, pagination metadata, and rich page information."
 ---
@@ -111,8 +111,8 @@ GET https://www.googleapis.com/customsearch/v1
 ```bash curl
 curl -G "https://www.googleapis.com/customsearch/v1" \
   --data-urlencode "q=google search api" \
-  --data-urlencode "key=YOUR_API_KEY" \
-  --data-urlencode "cx=YOUR_CX_ID" \
+  --data-urlencode "key=AIzaSyD-9tSrke72I6zb8Z9bM4jdO1EXAMPLE" \
+  --data-urlencode "cx=017576662512468239146:omuauf_lfve" \
   --data-urlencode "num=2" \
   --data-urlencode "safe=active"
 ```
@@ -122,8 +122,8 @@ import requests
 
 params = {
     "q": "google search api",
-    "key": "YOUR_API_KEY",
-    "cx": "YOUR_CX_ID",
+    "key": "AIzaSyD-9tSrke72I6zb8Z9bM4jdO1EXAMPLE",
+    "cx": "017576662512468239146:omuauf_lfve",
     "num": 2,
     "safe": "active",
 }
@@ -142,8 +142,8 @@ for item in data.get("items", []):
 ```javascript JavaScript
 const params = new URLSearchParams({
   q: "google search api",
-  key: "YOUR_API_KEY",
-  cx: "YOUR_CX_ID",
+  key: "AIzaSyD-9tSrke72I6zb8Z9bM4jdO1EXAMPLE",
+  cx: "017576662512468239146:omuauf_lfve",
   num: "2",
   safe: "active",
 });

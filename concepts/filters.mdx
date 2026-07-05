@@ -1,7 +1,7 @@
 ---
-title: "Search filters: narrow and refine your results"
+title: "Google Search filters: narrow and refine your results"
 sidebarTitle: "Filters"
-description: "Learn how to use Google Search filters — by date, file type, site, language, and more — through the UI, the API, and inline search operators to find exactly what you need."
+description: "Learn how to apply Google Search filters by date, file type, site, and language through the UI, the API, and inline search operators to pinpoint results."
 ---
 
 Filters let you slice the results set down to exactly the content you're looking for. Instead of scrolling through hundreds of broadly matched results, you apply constraints — a date window, a specific domain, a file format, a language — and Google returns only the subset that meets every condition. You can apply filters through the Search UI, through API parameters, or directly inside the query string using search operators.
@@ -11,16 +11,16 @@ Filters let you slice the results set down to exactly the content you're looking
 A filter is a constraint you place on the results pool after Google identifies candidate pages. Filters do not change how Google scores relevance; they remove results that fall outside the boundaries you define.
 
 <CardGroup cols={2}>
-  <Card title="Narrow by type" icon="layer-group">
+  <Card title="Narrow by type" icon="layer-group" href="/concepts/results">
     Restrict results to a specific content type — web pages, images, news articles, videos, or files of a particular format.
   </Card>
-  <Card title="Narrow by date" icon="calendar-days">
+  <Card title="Narrow by date" icon="calendar-days" href="/concepts/filters">
     Surface only content published or updated within a specific time window, from the past hour to a custom date range.
   </Card>
-  <Card title="Narrow by source" icon="globe">
+  <Card title="Narrow by source" icon="globe" href="/concepts/filters">
     Limit results to a single domain or website, so you're searching within a known, trusted source.
   </Card>
-  <Card title="Narrow by language or region" icon="flag">
+  <Card title="Narrow by language or region" icon="flag" href="/configuration/settings">
     Return results written in a specific language or originating from a specific country's regional index.
   </Card>
 </CardGroup>
@@ -69,11 +69,39 @@ In the API, use the `fileType` parameter:
 --data-urlencode "fileType=pdf"
 ```
 
+You can also apply this filter inline in the query string using the `filetype:` operator:
+
+```
+filetype:pdf annual report 2024
+filetype:xlsx budget template
+```
+
 ---
 
 ### Site
 
-Site filters confine results to a single domain or subdomain. Use them when you trust a specific source and want to search within it.
+Site filters confine results to a single domain or subdomain. Use them when you trust a specific source and want to search within it exclusively — for example, to find all indexed pages from your company's documentation site or to restrict research to a known authoritative source.
+
+In the API, use the `siteSearch` parameter combined with `siteSearchFilter`:
+
+```bash
+# Return only results from developer.chrome.com
+--data-urlencode "siteSearch=developer.chrome.com" \
+--data-urlencode "siteSearchFilter=i"   # "i" = include, "e" = exclude
+```
+
+You can also use the `site:` inline operator directly in the `q` parameter:
+
+```
+site:docs.example.com authentication
+site:en.wikipedia.org climate change
+```
+
+Use `site:` without additional terms to retrieve all pages Google has indexed from a given domain:
+
+```
+site:yourcompany.com
+```
 
 ---
 

@@ -1,5 +1,5 @@
 ---
-title: "Troubleshoot common Google Search issues"
+title: "Troubleshoot common Google Search problems and errors"
 sidebarTitle: "Troubleshooting"
 description: "Step-by-step fixes for the most common Google Search problems: no results, outdated content, API errors, rate limiting, widget failures, and missed alerts."
 ---
@@ -28,7 +28,7 @@ Most Google Search issues fall into a handful of predictable categories and can 
     Go to **Settings → Search → SafeSearch**. If it is set to **Filter**, try switching to **Blur** and searching again. Some legitimate queries can be caught by aggressive filtering.
   </Step>
   <Step title="Try a broader query">
-    Replace a very specific phrase with individual keywords. For example, change `"widget configuration schema v2.3.1 changelog"` to `widget configuration changelog`.
+    Replace a very specific phrase with individual keywords. For example, change `"search result display options updated 2024"` to `search result display options`.
   </Step>
 </Steps>
 
@@ -129,7 +129,7 @@ Most Google Search issues fall into a handful of predictable categories and can 
     ```
   </Step>
   <Step title="Add client-side caching">
-    Cache identical queries in your application layer (Redis, Memcached, or even an in-memory dictionary) for at least 60 seconds. Many applications repeat the same search query in rapid succession — caching eliminates these redundant API calls.
+    Cache identical queries in your application layer for at least 60 seconds. Many applications repeat the same search query in rapid succession — storing and reusing recent results eliminates these redundant API calls and keeps you well within your quota.
   </Step>
   <Step title="Request a quota increase">
     If you regularly hit the daily cap at your current tier, go to **Settings → API → Quota & Billing → Request quota increase** and submit a higher-quota request. See the [FAQ](/help/faq#api) for details on the request process.

@@ -1,7 +1,7 @@
 ---
-title: "Search results: types, structure, and ranking"
+title: "Google Search results: types, structure, and ranking"
 sidebarTitle: "Results"
-description: "Understand the anatomy of a Google Search result, the different result types available, how ranking works, and how to paginate through large result sets via the API."
+description: "Learn the anatomy of a Google Search result, the different result types, how ranking works, and how to paginate through result sets using the API."
 ---
 
 When Google returns results for your query, each item on the page is a structured object assembled from multiple data points — a title, a URL, a snippet, and optional metadata. Knowing how these components fit together, how Google decides which result to show first, and how to navigate deeper into the result set gives you precise control whether you're searching for yourself or building a search-powered application.
@@ -11,16 +11,16 @@ When Google returns results for your query, each item on the page is a structure
 Every standard web result shares a common structure, regardless of whether you're viewing it in a browser or consuming it through the API.
 
 <CardGroup cols={2}>
-  <Card title="Title" icon="heading">
+  <Card title="Title" icon="heading" href="/concepts/results">
     The clickable headline of the result. Google generates this from the page's `<title>` tag or a prominent heading, and may rewrite it if the original title is misleading or too long.
   </Card>
-  <Card title="URL" icon="link">
+  <Card title="URL" icon="link" href="/concepts/results">
     The canonical address of the page. Displayed in a "breadcrumb" format (e.g., `docs.google.com › search › overview`) so you can judge the source at a glance.
   </Card>
-  <Card title="Snippet" icon="align-left">
+  <Card title="Snippet" icon="align-left" href="/concepts/results">
     A short excerpt automatically selected from the page's content. Google picks the passage most likely to answer your query, highlighting matching terms in bold.
   </Card>
-  <Card title="Metadata" icon="circle-info">
+  <Card title="Metadata" icon="circle-info" href="/concepts/results">
     Optional contextual details such as publication date, author byline, star rating, price, or availability — drawn from structured data markup on the source page.
   </Card>
 </CardGroup>
@@ -137,16 +137,16 @@ The API response includes a `queries` object with `nextPage` and `previousPage` 
 When a webpage uses [schema.org](https://schema.org) structured data markup, Google can generate **rich results** — visually enhanced listings that include additional information directly on the results page.
 
 <CardGroup cols={2}>
-  <Card title="Review Stars" icon="star">
+  <Card title="Review Stars" icon="star" href="/concepts/results">
     Aggregate ratings and review counts for products, recipes, apps, and local businesses — sourced from `Review` or `AggregateRating` schema markup.
   </Card>
-  <Card title="FAQ Dropdowns" icon="circle-question">
+  <Card title="FAQ Dropdowns" icon="circle-question" href="/concepts/results">
     Expandable question-and-answer sections beneath a result, sourced from `FAQPage` schema markup on the source page.
   </Card>
-  <Card title="Event Listings" icon="calendar">
+  <Card title="Event Listings" icon="calendar" href="/concepts/results">
     Upcoming event dates, locations, and ticket links, sourced from `Event` schema markup.
   </Card>
-  <Card title="Recipe Cards" icon="utensils">
+  <Card title="Recipe Cards" icon="utensils" href="/concepts/results">
     Cook time, ingredient count, and calorie information, sourced from `Recipe` schema markup.
   </Card>
 </CardGroup>

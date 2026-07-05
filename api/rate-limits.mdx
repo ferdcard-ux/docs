@@ -1,5 +1,5 @@
 ---
-title: "API rate limits, quotas, and retry strategy"
+title: "Google Search API Rate Limits, Quotas, and Retry Strategy"
 sidebarTitle: "Rate Limits"
 description: "Understand Google Search API quotas, read rate-limit response headers, handle HTTP 429 errors, and implement exponential backoff with jitter."
 ---
@@ -90,7 +90,7 @@ import requests
 def search_with_backoff(query: str, api_key: str, max_retries: int = 5) -> dict:
     """Execute a search query with exponential backoff on 429 and 5xx errors."""
     base_url = "https://www.googleapis.com/customsearch/v1"
-    params = {"q": query, "key": api_key, "cx": "YOUR_SEARCH_ENGINE_ID"}
+    params = {"q": query, "key": api_key, "cx": "017576662512468239146:omuauf_lfve"}
 
     for attempt in range(max_retries):
         response = requests.get(base_url, params=params)
@@ -117,7 +117,7 @@ async function searchWithBackoff(query, apiKey, maxRetries = 5) {
   const params = new URLSearchParams({
     q: query,
     key: apiKey,
-    cx: "YOUR_SEARCH_ENGINE_ID",
+    cx: "017576662512468239146:omuauf_lfve",
   });
 
   for (let attempt = 0; attempt < maxRetries; attempt++) {

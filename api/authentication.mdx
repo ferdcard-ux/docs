@@ -1,5 +1,5 @@
 ---
-title: "API authentication: keys and OAuth 2.0"
+title: "Google Search API Authentication: Keys and OAuth 2.0"
 sidebarTitle: "Auth"
 description: "Authenticate your Google Search API requests using an API key or OAuth 2.0 — includes code examples in curl, Python, and JavaScript."
 ---
@@ -15,7 +15,7 @@ An API key is a string token that identifies your project to the API. You can pa
     Append `key=YOUR_API_KEY` to the request URL. This is the most common approach for server-to-server calls.
 
     ```
-    GET https://www.googleapis.com/customsearch/v1?q=openai&key=YOUR_API_KEY
+    GET https://www.googleapis.com/customsearch/v1?q=openai&key=AIzaSyD3oaBxExample1234567890abcdefghijk
     ```
   </Tab>
   <Tab title="Authorization header">
@@ -23,7 +23,7 @@ An API key is a string token that identifies your project to the API. You can pa
 
     ```
     GET https://www.googleapis.com/customsearch/v1?q=openai
-    Authorization: Bearer YOUR_API_KEY
+    Authorization: Bearer AIzaSyD3oaBxExample1234567890abcdefghijk
     ```
   </Tab>
 </Tabs>
@@ -31,6 +31,16 @@ An API key is a string token that identifies your project to the API. You can pa
 <Warning>
   Never embed your API key in front-end JavaScript or a mobile app binary. Use environment variables or a secrets manager, and restrict your key to specific IP addresses or referrer URLs in the [Google Cloud Console](https://console.cloud.google.com/apis/credentials).
 </Warning>
+
+### Getting your API key
+
+To obtain an API key:
+
+1. Open the [Google Cloud Console](https://console.cloud.google.com/apis/credentials) and sign in.
+2. Select or create a project, then navigate to **APIs & Services → Credentials**.
+3. Click **Create Credentials → API key**. Your new key appears immediately.
+4. Click **Edit API key** to restrict it to the Custom Search API and to specific IP addresses or HTTP referrers.
+5. Copy the key and store it in your application's secret manager or environment configuration — never in source code.
 
 ### Key parameters
 
@@ -45,8 +55,8 @@ An API key is a string token that identifies your project to the API. You can pa
 ```bash curl
 curl -G "https://www.googleapis.com/customsearch/v1" \
   --data-urlencode "q=google search api" \
-  --data-urlencode "cx=YOUR_SEARCH_ENGINE_ID" \
-  -H "Authorization: Bearer YOUR_API_KEY"
+  --data-urlencode "cx=017576662512468239146:omuauf_lfve" \
+  -H "Authorization: Bearer AIzaSyD3oaBxExample1234567890abcdefghijk"
 ```
 
 ```python Python
@@ -56,8 +66,8 @@ response = requests.get(
     "https://www.googleapis.com/customsearch/v1",
     params={
         "q": "google search api",
-        "cx": "YOUR_SEARCH_ENGINE_ID",
-        "key": "YOUR_API_KEY",
+        "cx": "017576662512468239146:omuauf_lfve",
+        "key": "AIzaSyD3oaBxExample1234567890abcdefghijk",
     },
 )
 
@@ -71,8 +81,8 @@ for item in data.get("items", []):
 ```javascript JavaScript (fetch)
 const params = new URLSearchParams({
   q: "google search api",
-  cx: "YOUR_SEARCH_ENGINE_ID",
-  key: "YOUR_API_KEY",
+  cx: "017576662512468239146:omuauf_lfve",
+  key: "AIzaSyD3oaBxExample1234567890abcdefghijk",
 });
 
 const response = await fetch(

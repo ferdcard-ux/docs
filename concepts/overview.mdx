@@ -1,7 +1,7 @@
 ---
-title: "How Google Search works: platform overview"
-sidebarTitle: "Platform Overview"
-description: "Learn how Google's search pipeline transforms your query into ranked results, and how personalization, the API layer, and key data entities power the experience."
+title: "How Google Search works: platform and API overview"
+sidebarTitle: "Overview"
+description: "Discover how Google's search pipeline transforms your query into ranked, personalized results — and how the API layer exposes that power to developers."
 ---
 
 Google Search is a multi-stage platform that takes the words you type and returns the most relevant information from across the web in milliseconds. Understanding the architecture behind that process — from how your query travels through an index to how your account preferences shape what you see — helps you get more out of Search, whether you're an everyday user or a developer building on top of the API.
@@ -30,16 +30,16 @@ Every search you run passes through four core stages before results reach your s
 Google tailors results to you based on context it collects over time. When you're signed in, Search draws on your activity to surface results that better match your interests and habits.
 
 <CardGroup cols={2}>
-  <Card title="Search History" icon="clock-rotate-left">
+  <Card title="Search History" icon="clock-rotate-left" href="/concepts/search">
     Past searches inform future result rankings. You can view and delete your history in [My Activity](https://myactivity.google.com).
   </Card>
-  <Card title="Location" icon="location-dot">
+  <Card title="Location" icon="location-dot" href="/configuration/settings">
     Your device's location (or a manually set region) shapes results for local queries like "coffee near me" or news relevant to your country.
   </Card>
-  <Card title="Language & Region Preferences" icon="globe">
+  <Card title="Language & Region Preferences" icon="globe" href="/configuration/settings">
     Account language and region settings control which language results appear in and which regional index is queried by default.
   </Card>
-  <Card title="SafeSearch" icon="shield-check">
+  <Card title="SafeSearch" icon="shield-check" href="/configuration/privacy">
     Your SafeSearch setting filters explicit content. Administrators can lock this setting for managed accounts or devices.
   </Card>
 </CardGroup>

@@ -1,7 +1,7 @@
 ---
-title: "Integrate Google Search into your application"
+title: "Integrate Google Search into your application or website"
 sidebarTitle: "Integrations"
-description: "Add Google Search to your app via REST API, embedded widget, or browser extension, with examples in curl, Python, and Node.js."
+description: "Add Google Search to your app via REST API, embedded widget, or browser extension, with working code examples in curl, Python, and Node.js."
 ---
 
 Google Search can be embedded directly into your products so users get world-class search capabilities without leaving your platform. Whether you're adding a simple search widget to a marketing site or building a backend service that queries the web programmatically, Google offers flexible integration paths for every use case. This guide walks through each option and provides working code you can adapt right away.
@@ -9,13 +9,13 @@ Google Search can be embedded directly into your products so users get world-cla
 ## Integration options overview
 
 <CardGroup cols={3}>
-  <Card title="REST API" icon="code">
+  <Card title="REST API" icon="code" href="/api/search">
     Query Google programmatically from your backend using the Custom Search JSON API. Returns structured JSON you can render however you like.
   </Card>
-  <Card title="Embedded Widget" icon="browser">
+  <Card title="Embedded Widget" icon="browser" href="/guides/customization">
     Drop a few lines of HTML into any webpage to add a fully styled search box powered by Google's Programmable Search Engine.
   </Card>
-  <Card title="Browser Extension" icon="puzzle-piece">
+  <Card title="Browser Extension" icon="puzzle-piece" href="/api/introduction">
     Distribute a Chrome or Edge extension that enhances or redirects searches for your users — ideal for enterprise or consumer tooling.
   </Card>
 </CardGroup>
@@ -34,7 +34,7 @@ The Programmable Search Engine (PSE) lets you embed a Google-powered search box 
     4. Copy your **Search Engine ID** (also called `cx`) from the dashboard — you'll need it in the next step.
   </Step>
   <Step title="Add the embed snippet to your HTML">
-    Paste the following snippet where you want the search box to appear. Replace `YOUR_CX_ID` with the Search Engine ID you copied.
+    Paste the following snippet where you want the search box to appear. Replace `YOUR_CX_ID` with the Search Engine ID you copied from the PSE dashboard.
 
     ```html title="index.html"
     <!-- Google Programmable Search Engine -->
@@ -68,7 +68,7 @@ The **Custom Search JSON API** lets you query Google from any server-side langua
     4. Go to **APIs & Services → Credentials**, click **Create credentials → API key**, and copy the key.
   </Step>
   <Step title="Make your first request">
-    Use any HTTP client to call the endpoint below. The base URL is always `https://www.googleapis.com/customsearch/v1`.
+    Use any HTTP client to call the endpoint below. The base URL is always `https://www.googleapis.com/customsearch/v1`. Replace `YOUR_API_KEY` with your API key and `YOUR_CX_ID` with your Search Engine ID.
 
     <CodeGroup>
       ```bash title="curl"
@@ -82,8 +82,8 @@ The **Custom Search JSON API** lets you query Google from any server-side langua
       ```python title="search.py"
       import requests
 
-      API_KEY = "YOUR_API_KEY"
-      CX_ID   = "YOUR_CX_ID"
+      API_KEY = "YOUR_API_KEY"  # Replace with your actual API key
+      CX_ID   = "YOUR_CX_ID"   # Replace with your Search Engine ID
 
       def google_search(query: str, num: int = 5) -> list[dict]:
           url = "https://www.googleapis.com/customsearch/v1"
@@ -109,8 +109,8 @@ The **Custom Search JSON API** lets you query Google from any server-side langua
       ```javascript title="search.js"
       const fetch = require("node-fetch"); // npm install node-fetch
 
-      const API_KEY = "YOUR_API_KEY";
-      const CX_ID   = "YOUR_CX_ID";
+      const API_KEY = "YOUR_API_KEY";  // Replace with your actual API key
+      const CX_ID   = "YOUR_CX_ID";   // Replace with your Search Engine ID
 
       async function googleSearch(query, num = 5) {
         const url = new URL("https://www.googleapis.com/customsearch/v1");
@@ -176,7 +176,7 @@ Google Alerts lets you monitor the web for new results matching a query and rece
     - **RSS feed**: subscribe via any feed reader or use the feed URL in your backend to poll for new results.
   </Step>
   <Step title="Consume the RSS feed programmatically">
-    Google Alerts generates an RSS 2.0 feed URL. Poll it from your server to trigger downstream actions.
+    Google Alerts generates an RSS 2.0 feed URL. Poll it from your server to trigger downstream actions. Replace `YOUR_FEED_ID` and `YOUR_FEED_TOKEN` with the values from your Alerts RSS feed URL.
 
     ```python title="alerts_poller.py"
     import feedparser
@@ -204,16 +204,16 @@ Google Alerts lets you monitor the web for new results matching a query and rece
 Follow these guidelines to build a reliable, respectful, and cost-effective integration.
 
 <CardGroup cols={2}>
-  <Card title="Cache responses" icon="database">
+  <Card title="Cache responses" icon="database" href="/api/rate-limits">
     Store API results for at least 24 hours for identical queries. Most search results don't change minute-to-minute, and caching slashes your quota consumption.
   </Card>
-  <Card title="Handle errors gracefully" icon="triangle-exclamation">
+  <Card title="Handle errors gracefully" icon="triangle-exclamation" href="/help/troubleshooting">
     Implement exponential back-off for `429 Too Many Requests` responses and surface a friendly fallback UI when the API is unavailable.
   </Card>
-  <Card title="Attribute results correctly" icon="copyright">
+  <Card title="Attribute results correctly" icon="copyright" href="/api/introduction">
     The Custom Search API terms of service require you to display Google branding alongside results. Use the provided logo assets from the [Google Brand Resource Center](https://about.google/brand-resource-center/).
   </Card>
-  <Card title="Respect rate limits" icon="gauge-high">
+  <Card title="Respect rate limits" icon="gauge-high" href="/api/rate-limits">
     Never burst more than 10 queries per second per API key. Distribute load with a queue if you expect spikes.
   </Card>
 </CardGroup>
