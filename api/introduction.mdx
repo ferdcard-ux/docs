@@ -1,0 +1,67 @@
+---
+title: "Google Search API: overview and getting started"
+sidebarTitle: "API Overview"
+description: "Learn what the Google Search API can do, how it's structured, and how to make your first request against the base URL."
+---
+
+The Google Search API gives you programmatic access to Google's web search engine, letting you embed real-time search results, structured data, and query suggestions directly into your application. Whether you're building a custom search experience, surfacing relevant content inside a product, or automating research workflows, the API returns clean JSON responses you can parse and display however you like.
+
+## Base URL
+
+Every request you make targets the following base URL:
+
+```
+https://www.googleapis.com/customsearch/v1
+```
+
+All endpoints are relative to this base. The API communicates exclusively over HTTPS — plain HTTP requests are rejected.
+
+## Authentication
+
+All requests require a valid credential. The API supports two authentication methods:
+
+- **API key** — attach your key as a `key` query parameter or an `Authorization: Bearer` header. This is the simplest method and works for all public search queries.
+- **OAuth 2.0** — required when you access user-specific data or act on behalf of a signed-in Google account.
+
+See the [Authentication guide](/api/authentication) for full details, code examples, and error handling.
+
+<Note>
+  You can generate an API key in the [Google Cloud Console](https://console.cloud.google.com/apis/credentials). Keep your key private — never expose it in client-side code or public repositories.
+</Note>
+
+## Response format
+
+The API always returns **JSON**. Every successful response includes a top-level `kind` field identifying the resource type, along with the data payload specific to that endpoint. Error responses follow the same envelope and include a structured `error` object with a `code`, `message`, and `status`.
+
+```json
+{
+  "kind": "customsearch#search",
+  "queries": { ... },
+  "items": [ ... ]
+}
+```
+
+## Versioning
+
+The current stable version is **v1**, reflected in the base URL path. Google communicates breaking changes through the [API changelog](https://developers.google.com/custom-search/v1/release-notes) before rolling them out. Non-breaking additions — new fields, new optional parameters — may appear in responses at any time, so build your parser to ignore unknown keys.
+
+## Available endpoints
+
+The table below summarises every endpoint in v1. Click an endpoint name to jump to its full reference page.
+
+| Endpoint | Method | Path | Description |
+|---|---|---|---|
+| **Search** | `GET` | `/customsearch/v1` | Run a web search and return ranked results. |
+| **Results** | `GET` | `/customsearch/v1/siterestrict` | Search within a specific site or subset of sites. |
+| **Suggestions** | `GET` | `/customsearch/v1/suggest` | Retrieve query autocomplete suggestions for a partial term. |
+| **Webhooks** | `POST` | `/customsearch/v1/webhooks` | Register a URL to receive push notifications when saved queries return new results. |
+
+<Tip>
+  Start with the **Search** endpoint. It supports the broadest set of parameters and is the fastest way to validate your integration before moving on to more specialised endpoints.
+</Tip>
+
+## Rate limits and quotas
+
+The free tier allows **100 queries per day**. Paid tiers extend this up to **10,000 queries per day**. Every response includes `X-RateLimit-*` headers so you can track consumption in real time.
+
+See the [Rate Limits guide](/api/rate-limits) for quota details, the HTTP 429 response structure, and a ready-to-use exponential backoff implementation.

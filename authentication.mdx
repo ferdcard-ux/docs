@@ -1,0 +1,223 @@
+---
+title: "Authenticate with the Google Search API"
+sidebarTitle: "Authentication"
+description: "Learn how to generate API keys, pass credentials in requests, handle common auth errors, and follow best practices to keep your keys secure."
+---
+
+Every request you make to the Google Search API must include valid credentials. Google uses API keys to identify your application, enforce rate limits, and protect against unauthorized access. This guide explains how to generate a key, how to include it in your requests, what to do when authentication fails, and how to keep your credentials safe over time.
+
+## How Google API authentication works
+
+The Google Search API uses **API key authentication** for server-to-server and script-based access. When you include your API key in a request, Google's gateway validates it, maps the request to your project, and then applies the appropriate quota and permission rules before forwarding the query to the search index.
+
+<Note>
+  For user-facing applications that access personal data (such as a user's search history or saved preferences), you must use **OAuth 2.0** instead of a plain API key. See the [API authentication reference](/api/authentication) for details on OAuth 2.0. This page covers API key authentication only.
+</Note>
+
+## Generate an API key
+
+You create and manage API keys in the [Google API Console](https://console.google.com). Follow these steps:
+
+<Steps>
+  <Step title="Open the API Console">
+    Go to [console.google.com](https://console.google.com) and sign in with your Google account. If this is your first visit, accept the terms of service to activate your account.
+  </Step>
+  <Step title="Create or select a project">
+    API keys are scoped to a project. Click the project dropdown at the top of the page and either select an existing project or click **New Project**, give it a name, and click **Create**.
+  </Step>
+  <Step title="Enable the Search API">
+    In the left sidebar, navigate to **APIs & Services → Library**. Search for **Google Search API**, click on it, and then click **Enable**. You must enable the API before a key will work with it.
+  </Step>
+  <Step title="Create the credential">
+    Go to **APIs & Services → Credentials** and click **Create Credentials → API Key**. The console generates your key immediately and displays it in a dialog. Copy it now — you won't be able to retrieve the exact value again after closing the dialog (though you can always create a new one).
+  </Step>
+  <Step title="Restrict the key (recommended)">
+    Click **Edit API Key** on the credentials list to open the restriction settings. Configure at least one of the following:
+    - **Application restrictions** — Limit usage to specific IP addresses (for server-side code) or HTTP referrers (for browser-side code).
+    - **API restrictions** — Restrict the key to only the Google Search API so it can't be used against other Google services if leaked.
+
+    Click **Save** when done.
+  </Step>
+</Steps>
+
+## Pass your API key in requests
+
+You can authenticate requests using either an HTTP header or a query parameter. The header approach is preferred because it keeps your key out of server logs and browser history.
+
+<Tabs>
+  <Tab title="Authorization Header (recommended)">
+    Pass your key as a Bearer token in the `Authorization` header:
+
+    <CodeGroup>
+      ```bash curl
+      curl -G "https://api.google.com/search/v1" \
+        --data-urlencode "q=climate change" \
+        -H "Authorization: Bearer $GOOGLE_API_KEY"
+      ```
+
+      ```python Python
+      import os
+      import requests
+
+      headers = {
+          "Authorization": f"Bearer {os.environ['GOOGLE_API_KEY']}",
+      }
+      response = requests.get(
+          "https://api.google.com/search/v1",
+          params={"q": "climate change"},
+          headers=headers,
+      )
+      response.raise_for_status()
+      print(response.json())
+      ```
+
+      ```javascript JavaScript
+      const response = await fetch(
+        "https://api.google.com/search/v1?q=climate+change",
+        {
+          headers: {
+            Authorization: `Bearer ${process.env.GOOGLE_API_KEY}`,
+          },
+        }
+      );
+      const data = await response.json();
+      console.log(data);
+      ```
+    </CodeGroup>
+  </Tab>
+
+  <Tab title="Query Parameter">
+    Append your key as the `key` query parameter. Use this method only when you cannot set custom headers (for example, in some embedded or legacy environments):
+
+    <CodeGroup>
+      ```bash curl
+      curl "https://api.google.com/search/v1?q=climate+change&key=$GOOGLE_API_KEY"
+      ```
+
+      ```python Python
+      import os
+      import requests
+
+      response = requests.get(
+          "https://api.google.com/search/v1",
+          params={
+              "q": "climate change",
+              "key": os.environ["GOOGLE_API_KEY"],
+          },
+      )
+      response.raise_for_status()
+      print(response.json())
+      ```
+    </CodeGroup>
+
+    <Warning>
+      When you pass your API key as a query parameter, it appears in URLs, which may be logged by proxies, load balancers, and browser history. Use the `Authorization` header whenever possible.
+    </Warning>
+  </Tab>
+</Tabs>
+
+## Handle common authentication errors
+
+When a request fails authentication, the API returns a JSON error body alongside an HTTP error status. Here are the two errors you'll encounter most often and how to resolve them:
+
+<CardGroup cols={2}>
+  <Card title="401 Unauthorized" icon="circle-xmark" href="#401-unauthorized">
+    The key is missing, malformed, or has been revoked.
+  </Card>
+  <Card title="403 Forbidden" icon="ban" href="#403-forbidden">
+    The key is valid but doesn't have permission to access this resource.
+  </Card>
+</CardGroup>
+
+### 401 Unauthorized
+
+```json title="401 Error Response"
+{
+  "error": {
+    "code": 401,
+    "status": "UNAUTHENTICATED",
+    "message": "Request is missing a valid API key."
+  }
+}
+```
+
+**Common causes and fixes:**
+
+| Cause | Fix |
+|---|---|
+| No `Authorization` header or `key` param included | Add your API key to the request (see examples above) |
+| Key string is malformed or contains extra whitespace | Copy the key directly from the API Console; avoid manual typing |
+| Key has been deleted or revoked | Generate a new key in the API Console |
+| Environment variable is empty or not exported | Run `echo $GOOGLE_API_KEY` to verify the variable is set |
+
+### 403 Forbidden
+
+```json title="403 Error Response"
+{
+  "error": {
+    "code": 403,
+    "status": "PERMISSION_DENIED",
+    "message": "API key does not have permission to access the requested resource."
+  }
+}
+```
+
+**Common causes and fixes:**
+
+| Cause | Fix |
+|---|---|
+| Google Search API not enabled for this project | Go to **APIs & Services → Library** and enable the Search API |
+| API restriction blocks this API | Edit the key and update its API restrictions to include the Search API |
+| IP restriction blocks your server's IP | Add your server's egress IP to the key's IP allowlist |
+| Referrer restriction blocks your domain | Add your domain to the key's HTTP referrer allowlist |
+
+## API key best practices
+
+Following these practices protects your account, prevents quota theft, and makes incident response much easier if a key is ever exposed.
+
+<CardGroup cols={2}>
+  <Card title="Keep keys secret" icon="lock" href="#keep-keys-secret">
+    Store keys in environment variables or a secrets manager — never in source code.
+  </Card>
+  <Card title="Rotate regularly" icon="arrows-rotate" href="#rotate-regularly">
+    Replace your keys on a schedule and immediately after any suspected exposure.
+  </Card>
+  <Card title="Restrict by IP or referrer" icon="shield" href="#restrict-by-ip-or-referrer">
+    Limit where each key can be used to minimize blast radius if it leaks.
+  </Card>
+  <Card title="Use one key per environment" icon="layer-group" href="#use-one-key-per-environment">
+    Create separate keys for development, staging, and production.
+  </Card>
+</CardGroup>
+
+### Keep keys secret
+
+Never embed an API key directly in your source code, and never commit it to a repository — even a private one. Use environment variables locally and a secrets manager (such as Google Secret Manager, AWS Secrets Manager, or HashiCorp Vault) in production.
+
+```bash title=".env (local development only — add to .gitignore)"
+GOOGLE_API_KEY=your_api_key_here
+```
+
+### Rotate regularly
+
+Rotate your API keys every 90 days as a baseline, and immediately any time you suspect a key has been exposed (for example, if it was accidentally logged or committed to a repository). To rotate a key:
+
+1. Generate a new key in the API Console.
+2. Deploy the new key to all environments.
+3. Verify your services are working with the new key.
+4. Delete the old key from the API Console.
+
+### Restrict by IP or referrer
+
+Apply the narrowest restriction that your architecture allows:
+
+- **Server-side applications** — Use IP address restrictions. Add the specific egress IPs of your servers; avoid using CIDR ranges wider than necessary.
+- **Browser-based applications** — Use HTTP referrer restrictions. Set your domain (e.g., `https://yourapp.com/*`) so the key only works from your pages.
+
+### Use one key per environment
+
+Create distinct keys for each environment (development, staging, production). This lets you revoke or rotate a single environment's key without affecting others, and makes it easier to track quota usage per environment in the API Console.
+
+<Tip>
+  You can add human-readable display names to your keys in the API Console (for example, `search-api-production` or `search-api-dev`). Descriptive names make it much easier to manage a growing list of credentials.
+</Tip>

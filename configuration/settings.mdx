@@ -1,0 +1,121 @@
+---
+title: "Configure your Google account and search settings"
+sidebarTitle: "Settings"
+description: "Customize your Google account profile, search behavior, region and language preferences, and API keys all from one central Settings panel."
+---
+
+Google's Settings panel gives you full control over how your account looks, how search behaves, and how external applications connect to your data. Whether you want to change your profile picture, tune the number of results per page, or rotate an API key, every option lives in one place — no hunting required.
+
+## Accessing Settings
+
+<Steps>
+  <Step title="Open the menu">
+    Click the **hamburger menu** (☰) in the top-left corner of any Google page, or click your **account icon** (your profile photo or initials) in the top-right corner.
+  </Step>
+  <Step title="Navigate to Settings">
+    Select **Settings** from the dropdown. You land on the Settings overview page, which is divided into sections along the left sidebar.
+  </Step>
+  <Step title="Choose a section">
+    Click any category — **Account**, **Search**, **API**, or **Notifications** — to jump directly to those controls.
+  </Step>
+</Steps>
+
+---
+
+## Account Settings
+
+Your account settings control your identity and credentials across Google.
+
+<Accordion title="Name and profile picture">
+  1. Go to **Settings → Account → Personal info**.
+  2. Click **Edit** next to your display name and type a new value, then click **Save**.
+  3. To update your profile picture, click your current photo (or the default avatar), then choose **Upload photo** or **Take a photo**. Accepted formats: JPG, PNG, GIF (static). Maximum file size: 5 MB.
+</Accordion>
+
+<Accordion title="Email address">
+  1. Go to **Settings → Account → Personal info → Email**.
+  2. Click **Edit**, enter your new email address, and click **Send verification**.
+  3. Open the verification email in your new inbox and click **Confirm**. Your address updates immediately after confirmation.
+
+  <Note>
+    You must verify the new address before Google switches over. Until then, your old address remains active for sign-in.
+  </Note>
+</Accordion>
+
+<Accordion title="Password">
+  1. Go to **Settings → Account → Security → Password**.
+  2. Re-authenticate if prompted, enter your new password in both fields, and click **Change password**.
+
+  <Tip>
+    Use a password manager to generate a unique, high-entropy password. Google requires at least 8 characters; we recommend 16 or more.
+  </Tip>
+</Accordion>
+
+---
+
+## Search Settings
+
+Search settings let you tailor how Google fetches and displays results for you.
+
+<Tabs>
+  <Tab title="Results per page">
+    1. Go to **Settings → Search → Display**.
+    2. Use the **Results per page** slider to choose between **10** and **100** results.
+    3. Click **Save**. The change applies to your next search.
+
+    <Note>
+      Showing more results per page increases page-load time. If you are on a slow connection, keeping this at 10–20 is recommended.
+    </Note>
+  </Tab>
+  <Tab title="Open results in new tab">
+    1. Go to **Settings → Search → Display**.
+    2. Toggle **Open each selected result in a new browser tab** to the **On** position.
+    3. Click **Save**.
+  </Tab>
+  <Tab title="Region and language">
+    1. Go to **Settings → Search → Region & Language**.
+    2. Select your **Search region** from the dropdown to bias results toward that country.
+    3. Select your **Interface language** to change menus, labels, and tips to your preferred language.
+    4. Click **Save**.
+
+    <Tip>
+      Changing your search region does not change the language of results — it only biases results toward sources in that country. Set both fields to get the best experience.
+    </Tip>
+  </Tab>
+</Tabs>
+
+---
+
+## API Settings
+
+The API section lets you create and manage the keys that authenticate your applications with Google Search APIs.
+
+<Steps>
+  <Step title="Generate a new API key">
+    Go to **Settings → API → Keys** and click **Create key**. Google generates a key and displays it once in full — copy it to a secure location immediately.
+  </Step>
+  <Step title="Name your key">
+    Click the pencil icon next to the key and enter a descriptive label (e.g., `prod-search-widget` or `staging-autocomplete`). Naming keys makes it easy to audit usage and rotate the right key later.
+  </Step>
+  <Step title="Restrict your key">
+    Click **Restrict** on any key to limit it to:
+    - **HTTP referrers** — only requests from specific domains are accepted.
+    - **IP addresses** — only requests from specified IPs are accepted.
+    - **API scope** — limit the key to specific Google APIs.
+
+    <Warning>
+      Unrestricted keys can be used from anywhere on the internet. Always apply at least one restriction before deploying a key to production.
+    </Warning>
+  </Step>
+  <Step title="Revoke a key">
+    Click **Revoke** next to any key, then confirm the dialog. Revocation is immediate and permanent — any application using that key will receive `401 Unauthorized` errors until you issue a replacement key.
+  </Step>
+</Steps>
+
+---
+
+## Notification Preferences
+
+Control which emails and push alerts Google sends you — including Google Alerts for keywords, product announcements, and security notices.
+
+For full details on creating keyword alerts and adjusting delivery frequency, see the [Notifications settings guide](/configuration/notifications).

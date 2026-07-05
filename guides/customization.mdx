@@ -1,0 +1,181 @@
+---
+title: "Customize your Google Search experience"
+sidebarTitle: "Customization"
+description: "Personalize Google Search by setting your language, region, SafeSearch, search history, custom search engines, and display appearance."
+---
+
+Google Search adapts to how you work — but only if you tell it your preferences. From the language results appear in to whether your history shapes future suggestions, every setting is yours to configure. This guide walks through each customization area so you can tailor Search to exactly the experience you want.
+
+## Setting your default language and region
+
+Google uses your browser locale and IP address to infer language and region, but you can override both explicitly for consistent results wherever you are.
+
+<Steps>
+  <Step title="Open Search Settings">
+    Run any search on [google.com](https://www.google.com), then click **Settings** in the bottom-right corner of the results page, or navigate directly to [google.com/preferences](https://www.google.com/preferences).
+  </Step>
+  <Step title="Choose your search language">
+    Under **Language**, select the language you want Google to use when ranking and presenting results. This affects the language of pages Google prioritizes — not the interface language.
+  </Step>
+  <Step title="Set your region">
+    Under **Region Settings**, pick the country whose local results you want to see. This is useful if you're based in one country but need results relevant to another.
+  </Step>
+  <Step title="Save your preferences">
+    Click **Save** at the bottom of the page. If you're signed in, these preferences sync across all devices.
+  </Step>
+</Steps>
+
+<Note>
+  The **interface language** (menus, buttons, labels) is controlled separately by your Google Account language setting at [myaccount.google.com](https://myaccount.google.com) → **Data & privacy → General preferences for the web → Language**.
+</Note>
+
+---
+
+## Configuring SafeSearch levels
+
+SafeSearch filters explicit sexual content from your results. You can set it to three levels.
+
+<Tabs>
+  <Tab title="Filter (default for minors)">
+    Blocks explicit images, videos, and websites from appearing in results. Recommended for shared devices and accounts used by minors.
+
+    ```text title="How to enable"
+    Search Settings → SafeSearch → Filter
+    ```
+  </Tab>
+  <Tab title="Blur">
+    Blurs explicit images but still lists their pages in results. Allows adult content to appear in context without displaying it directly.
+
+    ```text title="How to enable"
+    Search Settings → SafeSearch → Blur
+    ```
+  </Tab>
+  <Tab title="Off">
+    No filtering is applied. All relevant results appear regardless of content type.
+
+    ```text title="How to enable"
+    Search Settings → SafeSearch → Off
+    ```
+  </Tab>
+</Tabs>
+
+<Warning>
+  On accounts belonging to users under 18, SafeSearch is locked to **Filter** and cannot be changed without a parent or guardian's approval through Family Link.
+</Warning>
+
+---
+
+## Managing your search history
+
+Your search history powers features like autocomplete and personalized results. You have full control over whether it's collected, how long it's retained, and how to delete it.
+
+### Enable or pause history
+
+<Steps>
+  <Step title="Open My Activity">
+    Go to [myactivity.google.com](https://myactivity.google.com) and sign in if prompted.
+  </Step>
+  <Step title="Navigate to Web & App Activity">
+    Click **Data & privacy** in the left sidebar, then select **Web & App Activity**.
+  </Step>
+  <Step title="Toggle history on or off">
+    Use the toggle to **pause** or **resume** history collection at any time. When paused, searches are not saved to your account and won't influence suggestions.
+  </Step>
+  <Step title="Set auto-delete schedule">
+    Click **Auto-delete activity** and choose how long Google retains your history: **3 months**, **18 months**, or **36 months**. Older activity is deleted automatically on a rolling basis.
+  </Step>
+</Steps>
+
+### Viewing and deleting history
+
+<CardGroup cols={2}>
+  <Card title="View your history" icon="clock-rotate-left">
+    Visit [myactivity.google.com](https://myactivity.google.com) to browse a chronological feed of every search you've performed. Use the search bar and filters to find specific queries by date or product.
+  </Card>
+  <Card title="Delete specific items" icon="trash">
+    Hover over any activity item and click the **X** to delete that single entry, or use **Delete activity by** to remove all searches in a date range or for a specific product.
+  </Card>
+</CardGroup>
+
+<Tip>
+  You can delete the last 15 minutes of activity directly from the Google app on mobile by tapping your profile photo and selecting **Delete last 15 min**.
+</Tip>
+
+---
+
+## Custom search engines
+
+A Custom Search Engine (CSE) lets you build a focused search experience over a defined set of sites — perfect for a documentation portal, intranet, or research project.
+
+<Steps>
+  <Step title="Create a new engine">
+    Navigate to [programmablesearchengine.google.com](https://programmablesearchengine.google.com) and click **Add**. Enter the domain(s) or URL patterns you want to include, for example:
+
+    ```text title="Site patterns"
+    docs.example.com
+    blog.example.com/*
+    *.example.org
+    ```
+  </Step>
+  <Step title="Configure search scope">
+    Choose between:
+    - **Search only these sites** — results come exclusively from your specified domains.
+    - **Search the entire web, emphasize these sites** — the web is searched but your sites are ranked higher.
+  </Step>
+  <Step title="Refine with labels and promotions">
+    In the **Setup** panel, add **Labels** to group sites by topic, and create **Promotions** to pin specific pages to the top of results for targeted queries.
+  </Step>
+  <Step title="Embed or share the engine">
+    Copy your **Search Engine ID** (`cx`) and embed the widget on your site (see the [Integrations guide](/guides/integrations)) or share the direct link:
+
+    ```text title="Custom search URL"
+    https://cse.google.com/cse?cx=YOUR_CX_ID
+    ```
+  </Step>
+</Steps>
+
+---
+
+## Appearance settings
+
+Adjust how Google Search looks to reduce eye strain and match your working style.
+
+<Tabs>
+  <Tab title="Light / Dark mode">
+    <Steps>
+      <Step title="Open Search Settings">
+        Go to [google.com/preferences](https://www.google.com/preferences) or click **Settings → Search settings** after any search.
+      </Step>
+      <Step title="Choose your theme">
+        Under **Appearance**, select **Light**, **Dark**, or **Device default** (follows your OS system preference automatically).
+      </Step>
+      <Step title="Save">
+        Click **Save**. The change takes effect immediately on your current browser.
+      </Step>
+    </Steps>
+
+    <Tip>
+      Choosing **Device default** means Search automatically switches between light and dark as your OS theme changes — no manual toggling needed.
+    </Tip>
+  </Tab>
+  <Tab title="Results density">
+    <Steps>
+      <Step title="Open Search Settings">
+        Navigate to [google.com/preferences](https://www.google.com/preferences).
+      </Step>
+      <Step title="Set results per page">
+        Under **Results per page**, drag the slider from **10** (default) up to **100** results per page. Showing more results reduces the need to paginate but may slow page loads.
+      </Step>
+      <Step title="Enable or disable instant results">
+        Toggle **Google Instant** on or off to control whether results update as you type or only after you press **Enter**.
+      </Step>
+      <Step title="Save">
+        Click **Save** to apply your display preferences.
+      </Step>
+    </Steps>
+  </Tab>
+</Tabs>
+
+<Note>
+  Appearance preferences set while signed out are stored as a browser cookie. They apply only to that browser until the cookie expires or is cleared. Sign in to sync preferences across all your devices.
+</Note>

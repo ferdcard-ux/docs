@@ -1,0 +1,223 @@
+---
+title: "Integrate Google Search into your application"
+sidebarTitle: "Integrations"
+description: "Add Google Search to your app via REST API, embedded widget, or browser extension, with examples in curl, Python, and Node.js."
+---
+
+Google Search can be embedded directly into your products so users get world-class search capabilities without leaving your platform. Whether you're adding a simple search widget to a marketing site or building a backend service that queries the web programmatically, Google offers flexible integration paths for every use case. This guide walks through each option and provides working code you can adapt right away.
+
+## Integration options overview
+
+<CardGroup cols={3}>
+  <Card title="REST API" icon="code">
+    Query Google programmatically from your backend using the Custom Search JSON API. Returns structured JSON you can render however you like.
+  </Card>
+  <Card title="Embedded Widget" icon="browser">
+    Drop a few lines of HTML into any webpage to add a fully styled search box powered by Google's Programmable Search Engine.
+  </Card>
+  <Card title="Browser Extension" icon="puzzle-piece">
+    Distribute a Chrome or Edge extension that enhances or redirects searches for your users — ideal for enterprise or consumer tooling.
+  </Card>
+</CardGroup>
+
+---
+
+## Adding a search widget to a webpage
+
+The Programmable Search Engine (PSE) lets you embed a Google-powered search box on any page in minutes with no backend required.
+
+<Steps>
+  <Step title="Create a Programmable Search Engine">
+    1. Go to [programmablesearchengine.google.com](https://programmablesearchengine.google.com) and sign in with your Google account.
+    2. Click **Add** and enter the sites you want to search (e.g., `example.com` or `*.example.com` for the whole domain).
+    3. Give your engine a name and click **Create**.
+    4. Copy your **Search Engine ID** (also called `cx`) from the dashboard — you'll need it in the next step.
+  </Step>
+  <Step title="Add the embed snippet to your HTML">
+    Paste the following snippet where you want the search box to appear. Replace `YOUR_CX_ID` with the Search Engine ID you copied.
+
+    ```html title="index.html"
+    <!-- Google Programmable Search Engine -->
+    <script async src="https://cse.google.com/cse.js?cx=YOUR_CX_ID"></script>
+    <div class="gcse-search"></div>
+    ```
+  </Step>
+  <Step title="Customize the appearance (optional)">
+    In the PSE dashboard, navigate to **Look and feel** to choose a layout (Overlay, Two-column, Full-width), set a color theme, and control which result elements to display.
+  </Step>
+  <Step title="Verify the integration">
+    Open your page in a browser and type a query into the search box. Results should appear styled according to your chosen theme and restricted to the sites you configured.
+  </Step>
+</Steps>
+
+<Note>
+  The free tier of Programmable Search Engine displays Google ads in results. To show ad-free results, upgrade to a paid plan in the PSE dashboard.
+</Note>
+
+---
+
+## Calling the Search API from your backend
+
+The **Custom Search JSON API** lets you query Google from any server-side language and receive structured JSON. You need an API key and a Search Engine ID.
+
+<Steps>
+  <Step title="Obtain an API key">
+    1. Open the [Google Cloud Console](https://console.cloud.google.com).
+    2. Create or select a project, then navigate to **APIs & Services → Library**.
+    3. Search for **Custom Search API** and click **Enable**.
+    4. Go to **APIs & Services → Credentials**, click **Create credentials → API key**, and copy the key.
+  </Step>
+  <Step title="Make your first request">
+    Use any HTTP client to call the endpoint below. The base URL is always `https://www.googleapis.com/customsearch/v1`.
+
+    <CodeGroup>
+      ```bash title="curl"
+      curl -G "https://www.googleapis.com/customsearch/v1" \
+        --data-urlencode "key=YOUR_API_KEY" \
+        --data-urlencode "cx=YOUR_CX_ID" \
+        --data-urlencode "q=renewable energy breakthroughs" \
+        --data-urlencode "num=5"
+      ```
+
+      ```python title="search.py"
+      import requests
+
+      API_KEY = "YOUR_API_KEY"
+      CX_ID   = "YOUR_CX_ID"
+
+      def google_search(query: str, num: int = 5) -> list[dict]:
+          url = "https://www.googleapis.com/customsearch/v1"
+          params = {
+              "key": API_KEY,
+              "cx":  CX_ID,
+              "q":   query,
+              "num": num,
+          }
+          response = requests.get(url, params=params)
+          response.raise_for_status()
+          data = response.json()
+          return data.get("items", [])
+
+      if __name__ == "__main__":
+          results = google_search("renewable energy breakthroughs")
+          for item in results:
+              print(item["title"])
+              print(item["link"])
+              print()
+      ```
+
+      ```javascript title="search.js"
+      const fetch = require("node-fetch"); // npm install node-fetch
+
+      const API_KEY = "YOUR_API_KEY";
+      const CX_ID   = "YOUR_CX_ID";
+
+      async function googleSearch(query, num = 5) {
+        const url = new URL("https://www.googleapis.com/customsearch/v1");
+        url.searchParams.set("key", API_KEY);
+        url.searchParams.set("cx",  CX_ID);
+        url.searchParams.set("q",   query);
+        url.searchParams.set("num", String(num));
+
+        const res = await fetch(url.toString());
+        if (!res.ok) throw new Error(`Search API error: ${res.status}`);
+        const data = await res.json();
+        return data.items ?? [];
+      }
+
+      (async () => {
+        const results = await googleSearch("renewable energy breakthroughs");
+        results.forEach(({ title, link }) => {
+          console.log(title);
+          console.log(link);
+          console.log();
+        });
+      })();
+      ```
+    </CodeGroup>
+  </Step>
+  <Step title="Parse the response">
+    Each item in the `items` array contains the fields most useful for rendering results.
+
+    ```json title="Sample API response (truncated)"
+    {
+      "items": [
+        {
+          "title": "Breakthroughs in Renewable Energy – Example News",
+          "link": "https://example.com/renewable-energy",
+          "snippet": "Scientists announced a 40% efficiency gain in solar cell technology...",
+          "displayLink": "example.com",
+          "pagemap": {
+            "metatags": [{ "og:image": "https://example.com/img/solar.jpg" }]
+          }
+        }
+      ]
+    }
+    ```
+  </Step>
+</Steps>
+
+<Warning>
+  The free quota is 100 queries per day. Beyond that, each additional 1,000 queries costs $5. Cache responses aggressively (see Best Practices below) to stay within budget.
+</Warning>
+
+---
+
+## Webhooks: subscribing to search alert notifications
+
+Google Alerts lets you monitor the web for new results matching a query and receive notifications via webhook or email.
+
+<Steps>
+  <Step title="Create an alert">
+    Go to [google.com/alerts](https://www.google.com/alerts), enter your monitoring query, and click **Show options** to set frequency, sources, language, and region.
+  </Step>
+  <Step title="Choose delivery method">
+    - **Email**: receive digest emails at your chosen cadence.
+    - **RSS feed**: subscribe via any feed reader or use the feed URL in your backend to poll for new results.
+  </Step>
+  <Step title="Consume the RSS feed programmatically">
+    Google Alerts generates an RSS 2.0 feed URL. Poll it from your server to trigger downstream actions.
+
+    ```python title="alerts_poller.py"
+    import feedparser
+    import time
+
+    FEED_URL = "https://www.google.com/alerts/feeds/YOUR_FEED_ID/YOUR_FEED_TOKEN"
+
+    def check_alerts():
+        feed = feedparser.parse(FEED_URL)
+        for entry in feed.entries:
+            print(f"[{entry.published}] {entry.title}")
+            print(entry.link)
+
+    while True:
+        check_alerts()
+        time.sleep(3600)  # Poll every hour
+    ```
+  </Step>
+</Steps>
+
+---
+
+## Best practices for integration
+
+Follow these guidelines to build a reliable, respectful, and cost-effective integration.
+
+<CardGroup cols={2}>
+  <Card title="Cache responses" icon="database">
+    Store API results for at least 24 hours for identical queries. Most search results don't change minute-to-minute, and caching slashes your quota consumption.
+  </Card>
+  <Card title="Handle errors gracefully" icon="triangle-exclamation">
+    Implement exponential back-off for `429 Too Many Requests` responses and surface a friendly fallback UI when the API is unavailable.
+  </Card>
+  <Card title="Attribute results correctly" icon="copyright">
+    The Custom Search API terms of service require you to display Google branding alongside results. Use the provided logo assets from the [Google Brand Resource Center](https://about.google/brand-resource-center/).
+  </Card>
+  <Card title="Respect rate limits" icon="gauge-high">
+    Never burst more than 10 queries per second per API key. Distribute load with a queue if you expect spikes.
+  </Card>
+</CardGroup>
+
+<Tip>
+  For high-volume production use cases, consider the **Google Cloud Enterprise Search** product, which provides higher quotas, SLAs, and richer ranking controls beyond what the free Custom Search JSON API offers.
+</Tip>

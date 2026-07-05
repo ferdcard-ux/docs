@@ -1,0 +1,158 @@
+---
+title: "Frequently asked questions about Google Search"
+sidebarTitle: "FAQ"
+description: "Answers to the most common questions about your Google account, search behavior, and the Search API — organized by category for quick reference."
+---
+
+Find answers to the questions our users ask most often. Questions are grouped by topic so you can jump straight to what you need. If you don't find your answer here, visit the [Troubleshooting guide](/help/troubleshooting) or contact Google Support.
+
+---
+
+## Account & Access
+
+<Accordion title="How do I reset my password?">
+  If you know your current password, you can change it directly in Settings:
+
+  1. Go to **Settings → Account → Security → Password**.
+  2. Enter your current password, then enter and confirm your new password.
+  3. Click **Change password**.
+
+  If you've been locked out:
+
+  1. Go to [accounts.google.com/signin/recovery](https://accounts.google.com/signin/recovery).
+  2. Enter your email address and click **Next**.
+  3. Choose a recovery method — a code sent to your recovery email, a code sent to your phone, or answering your security questions.
+  4. Follow the on-screen prompts to set a new password.
+
+  <Tip>
+    Add a recovery phone number and recovery email to your account before you get locked out. Go to **Settings → Account → Security → Recovery options** to add them now.
+  </Tip>
+</Accordion>
+
+<Accordion title="Can I manage multiple Google accounts at once?">
+  Yes. Google supports switching between accounts without signing out:
+
+  1. Click your **profile picture** in the top-right corner of any Google page.
+  2. Click **Add another account** and sign in with your second account's credentials.
+  3. To switch accounts, click your profile picture and select the account you want to use. The active account is highlighted.
+
+  You can add as many accounts as you like. Each account's search history, alerts, and settings remain completely separate.
+
+  <Note>
+    On mobile, you can add accounts under **Google app → Profile picture → Manage accounts on this device**.
+  </Note>
+</Accordion>
+
+<Accordion title="How do I permanently delete my Google account?">
+  Deleting your Google account removes all data associated with it — Gmail, Drive, search history, and any other Google products — and cannot be undone.
+
+  1. Go to [myaccount.google.com/delete-account](https://myaccount.google.com/delete-account).
+  2. Sign in if prompted, then read the disclosure carefully.
+  3. Check the boxes to confirm you understand what will be deleted.
+  4. Click **Delete account**.
+
+  <Warning>
+    Before deleting your account, use [Google Takeout](https://takeout.google.com) to download a copy of your data. Once the account is deleted, recovery is not possible.
+  </Warning>
+</Accordion>
+
+---
+
+## Search
+
+<Accordion title="Why do my search results look different on my phone than on my computer?">
+  Several factors can cause results to differ across devices:
+
+  - **Location** — Your phone's GPS provides a more precise location than your desktop's IP address, so local results may differ.
+  - **Signed-in state** — If you're signed in on one device and not the other, personalization (based on your search history) applies only where you're signed in.
+  - **Device type** — Google may rank and format results differently for mobile versus desktop to account for screen size and usage patterns.
+  - **Cache and cookies** — Older cached results on one device may not yet reflect the latest index updates.
+
+  To get consistent results, sign in to the same account on both devices and ensure location permissions are configured the same way.
+</Accordion>
+
+<Accordion title="How do I search in a language other than my default?">
+  You have two options:
+
+  **Change your language setting permanently:**
+  1. Go to **Settings → Search → Region & Language**.
+  2. Select your preferred language from the **Interface language** dropdown.
+  3. Click **Save**.
+
+  **Search in another language for a single query:**
+  - Add the `lr` parameter directly in the URL: `google.com/search?q=your+query&lr=lang_fr` (replace `lang_fr` with your target language code).
+  - Alternatively, click **Settings → Search tools → Any language** on the results page and choose a specific language. This applies only to the current session.
+</Accordion>
+
+<Accordion title="How do I exclude a word from my search results?">
+  Place a minus sign (`-`) immediately before any word you want to exclude — no space between the minus and the word.
+
+  **Examples:**
+  - `jaguar -car` — results about the animal, not the car brand
+  - `python tutorial -video` — text tutorials only, no video results
+  - `apple -site:apple.com` — results about Apple that don't come from apple.com
+
+  You can chain multiple exclusions: `recipe pasta -gluten -dairy`.
+</Accordion>
+
+<Accordion title="What is SafeSearch and how do I turn it on or off?">
+  SafeSearch filters explicit content — such as graphic violence or adult material — from your search results.
+
+  **To configure SafeSearch:**
+  1. Go to **Settings → Search → SafeSearch**.
+  2. Choose one of three levels:
+     - **Filter** — hides most explicit images, videos, and websites
+     - **Blur** — blurs explicit images but doesn't hide them (default for most users)
+     - **Off** — no filtering applied
+  3. Click **Save**.
+
+  <Note>
+    If your SafeSearch setting keeps reverting, your network administrator (at work or school) may have locked it. You won't be able to change it unless the administrator unlocks it.
+  </Note>
+</Accordion>
+
+---
+
+## API
+
+<Accordion title="What are the default rate limits for the Google Search API?">
+  Default API quotas depend on your account tier:
+
+  | Tier | Queries per day | Queries per second |
+  |------|-----------------|--------------------|
+  | **Free** | 100 | 1 |
+  | **Basic** | 10,000 | 10 |
+  | **Pro** | 100,000 | 50 |
+  | **Enterprise** | Custom | Custom |
+
+  You can view your current usage and remaining quota at any time in **Settings → API → Usage dashboard**. Exceeding your daily quota results in `429 Too Many Requests` responses until the quota resets at midnight Pacific Time.
+</Accordion>
+
+<Accordion title="Which programming languages does the Google Search API support?">
+  The Google Search API is a standard REST API, so it works with any language capable of making HTTP requests. Official client libraries are provided and actively maintained for:
+
+  - **Python** — `google-api-python-client`
+  - **Node.js / JavaScript** — `googleapis` npm package
+  - **Java** — `google-api-java-client`
+  - **Go** — `google.golang.org/api`
+  - **Ruby** — `google-api-client` gem
+  - **PHP** — `google/apiclient`
+  - **.NET / C#** — `Google.Apis` NuGet package
+
+  For languages without an official library, use any HTTP client and authenticate requests with your API key as a query parameter (`?key=YOUR_API_KEY`) or in the `Authorization` header as a Bearer token.
+</Accordion>
+
+<Accordion title="How do I request more API quota?">
+  If your project consistently approaches its daily limit, you can request a quota increase:
+
+  1. Go to **Settings → API → Quota & Billing**.
+  2. Click **Request quota increase**.
+  3. Fill in the form — describe your use case, your expected query volume, and the quota level you need.
+  4. Submit the request. The Google API team typically responds within 2–5 business days.
+
+  For Enterprise-level needs (custom SLAs, dedicated infrastructure, or volumes above 1 million queries/day), contact the [Google Sales team](https://google.com/contact/sales) directly.
+
+  <Tip>
+    Implement client-side caching to reduce redundant API calls before requesting more quota. Caching identical queries for even 60 seconds can dramatically reduce your daily usage.
+  </Tip>
+</Accordion>

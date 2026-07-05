@@ -1,0 +1,302 @@
+---
+title: "Webhooks: receive Google Alert notifications"
+sidebarTitle: "Webhooks"
+description: "Register webhook endpoints to receive real-time HTTP notifications when Google Alerts are triggered, created, or deleted — no polling required."
+---
+
+Webhooks let your application receive real-time HTTP `POST` notifications from Google whenever a Google Alert event occurs. Instead of polling the API on a schedule, you register a publicly accessible URL and Google pushes a signed payload to it the moment a matching event fires. This is the recommended integration pattern for building dashboards, notification pipelines, and automated workflows that respond to alert activity.
+
+## Supported Events
+
+| Event | Description |
+|-------|-------------|
+| `alert.triggered` | A Google Alert matched new web content and generated results. |
+| `alert.created` | A new Google Alert was created in the associated account. |
+| `alert.deleted` | An existing Google Alert was deleted. |
+
+## Register a Webhook
+
+Register a new webhook endpoint to start receiving event notifications.
+
+```
+POST https://www.googleapis.com/customsearch/v1/webhooks
+```
+
+### Body Parameters
+
+<ParamField body="url" type="string" required>
+  The fully qualified HTTPS URL of your endpoint. Google sends `POST` requests to this URL when a matching event fires. The URL must be publicly accessible and respond with an HTTP `2xx` status within 10 seconds.
+</ParamField>
+
+<ParamField body="events" type="array" required>
+  An array of event type strings that this webhook should listen for. Must contain at least one value. Accepted values: `"alert.triggered"`, `"alert.created"`, `"alert.deleted"`.
+
+  Pass `["alert.triggered", "alert.created", "alert.deleted"]` to subscribe to all events.
+</ParamField>
+
+<ParamField body="secret" type="string">
+  An optional secret string used to sign webhook payloads via HMAC-SHA256. When provided, Google includes an `X-Google-Signature` header with each request so you can verify the payload's authenticity. Use a randomly generated, high-entropy string (at least 32 characters).
+</ParamField>
+
+### Response Fields
+
+<ResponseField name="id" type="string">
+  A unique identifier for the registered webhook. Store this value — you need it to delete the webhook later.
+</ResponseField>
+
+<ResponseField name="url" type="string">
+  The endpoint URL you registered.
+</ResponseField>
+
+<ResponseField name="events" type="array of strings">
+  The list of event types this webhook is subscribed to.
+</ResponseField>
+
+<ResponseField name="created_at" type="string">
+  The ISO 8601 timestamp (UTC) at which the webhook was registered, e.g., `"2024-04-01T12:00:00Z"`.
+</ResponseField>
+
+### Example
+
+<CodeGroup>
+
+```bash curl
+curl -X POST "https://www.googleapis.com/customsearch/v1/webhooks" \
+  -H "Authorization: Bearer YOUR_ACCESS_TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "url": "https://yourapp.example.com/webhooks/google",
+    "events": ["alert.triggered", "alert.created", "alert.deleted"],
+    "secret": "your-random-secret-string"
+  }'
+```
+
+```python Python
+import requests
+
+payload = {
+    "url": "https://yourapp.example.com/webhooks/google",
+    "events": ["alert.triggered", "alert.created", "alert.deleted"],
+    "secret": "your-random-secret-string",
+}
+
+response = requests.post(
+    "https://www.googleapis.com/customsearch/v1/webhooks",
+    json=payload,
+    headers={"Authorization": "Bearer YOUR_ACCESS_TOKEN"},
+)
+response.raise_for_status()
+webhook = response.json()
+print(f"Registered webhook ID: {webhook['id']}")
+```
+
+```javascript JavaScript
+const response = await fetch(
+  "https://www.googleapis.com/customsearch/v1/webhooks",
+  {
+    method: "POST",
+    headers: {
+      Authorization: "Bearer YOUR_ACCESS_TOKEN",
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      url: "https://yourapp.example.com/webhooks/google",
+      events: ["alert.triggered", "alert.created", "alert.deleted"],
+      secret: "your-random-secret-string",
+    }),
+  }
+);
+const webhook = await response.json();
+console.log("Registered webhook ID:", webhook.id);
+```
+
+</CodeGroup>
+
+### Example Response
+
+```json
+{
+  "id": "wh_01HZ9KQXM3ABCDEF012345",
+  "url": "https://yourapp.example.com/webhooks/google",
+  "events": ["alert.triggered", "alert.created", "alert.deleted"],
+  "created_at": "2024-04-01T12:00:00Z"
+}
+```
+
+---
+
+## Delete a Webhook
+
+Remove a registered webhook. Google stops sending notifications to the associated URL immediately.
+
+```
+DELETE https://www.googleapis.com/customsearch/v1/webhooks/{id}
+```
+
+### Path Parameters
+
+<ParamField path="id" type="string" required>
+  The unique ID of the webhook to delete, as returned by the registration endpoint.
+</ParamField>
+
+### Example
+
+<CodeGroup>
+
+```bash curl
+curl -X DELETE \
+  "https://www.googleapis.com/customsearch/v1/webhooks/wh_01HZ9KQXM3ABCDEF012345" \
+  -H "Authorization: Bearer YOUR_ACCESS_TOKEN"
+```
+
+```python Python
+import requests
+
+webhook_id = "wh_01HZ9KQXM3ABCDEF012345"
+
+response = requests.delete(
+    f"https://www.googleapis.com/customsearch/v1/webhooks/{webhook_id}",
+    headers={"Authorization": "Bearer YOUR_ACCESS_TOKEN"},
+)
+response.raise_for_status()
+print("Webhook deleted.")
+```
+
+```javascript JavaScript
+const webhookId = "wh_01HZ9KQXM3ABCDEF012345";
+
+await fetch(
+  `https://www.googleapis.com/customsearch/v1/webhooks/${webhookId}`,
+  {
+    method: "DELETE",
+    headers: { Authorization: "Bearer YOUR_ACCESS_TOKEN" },
+  }
+);
+console.log("Webhook deleted.");
+```
+
+</CodeGroup>
+
+A successful deletion returns HTTP `204 No Content` with an empty body.
+
+---
+
+## Webhook Payload Structure
+
+When an event fires, Google sends an HTTP `POST` request to your registered URL with a JSON body structured as follows:
+
+<ResponseField name="event" type="string">
+  The name of the event that triggered this notification, e.g., `"alert.triggered"`.
+</ResponseField>
+
+<ResponseField name="timestamp" type="string">
+  The ISO 8601 UTC timestamp at which the event occurred, e.g., `"2024-04-01T14:32:00Z"`.
+</ResponseField>
+
+<ResponseField name="data" type="object">
+  Event-specific payload data.
+
+  <Expandable title="data object">
+    <ResponseField name="data.alertId" type="string">
+      The unique identifier of the Google Alert that produced the event.
+    </ResponseField>
+    <ResponseField name="data.alertQuery" type="string">
+      The search query string associated with the alert (present on `alert.triggered` and `alert.created` events).
+    </ResponseField>
+    <ResponseField name="data.results" type="array">
+      An array of matching result objects for `alert.triggered` events. Each object includes `title`, `link`, and `snippet`.
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+### Example Payload
+
+```json
+{
+  "event": "alert.triggered",
+  "timestamp": "2024-04-01T14:32:00Z",
+  "data": {
+    "alertId": "al_99XYZ123",
+    "alertQuery": "Google Search API",
+    "results": [
+      {
+        "title": "Google Expands Custom Search API Features",
+        "link": "https://example.com/news/google-search-api-2024",
+        "snippet": "Google has announced several new capabilities for its Custom Search API, including expanded language support and higher rate limits..."
+      }
+    ]
+  }
+}
+```
+
+---
+
+## Verifying Webhook Signatures
+
+When you register a webhook with a `secret`, Google signs every payload using HMAC-SHA256 and includes the signature in the `X-Google-Signature` request header. You should always verify this signature before processing a payload to confirm that the request genuinely originated from Google.
+
+The signature is computed as:
+
+```
+HMAC-SHA256(secret, raw_request_body)
+```
+
+The header value is the hex-encoded digest, prefixed with `sha256=`.
+
+<Warning>
+  Always verify the signature **before** parsing or acting on the payload. Skip this step and a malicious actor could trigger your webhook handler with a forged payload.
+</Warning>
+
+### Verification Example (Node.js)
+
+```javascript
+import crypto from "crypto";
+
+/**
+ * Verify a Google webhook signature.
+ *
+ * @param {string} secret      - The secret you provided when registering the webhook.
+ * @param {string} rawBody     - The raw (unparsed) request body string.
+ * @param {string} headerValue - The value of the X-Google-Signature header.
+ * @returns {boolean}          - True if the signature is valid, false otherwise.
+ */
+function verifyWebhookSignature(secret, rawBody, headerValue) {
+  const expectedSignature =
+    "sha256=" +
+    crypto
+      .createHmac("sha256", secret)
+      .update(rawBody, "utf8")
+      .digest("hex");
+
+  // Use timingSafeEqual to prevent timing attacks
+  const expected = Buffer.from(expectedSignature, "utf8");
+  const received = Buffer.from(headerValue, "utf8");
+
+  if (expected.length !== received.length) return false;
+  return crypto.timingSafeEqual(expected, received);
+}
+
+// Example Express.js handler
+app.post(
+  "/webhooks/google",
+  express.raw({ type: "application/json" }),
+  (req, res) => {
+    const signature = req.headers["x-google-signature"];
+    const rawBody = req.body.toString("utf8");
+
+    if (!verifyWebhookSignature(process.env.WEBHOOK_SECRET, rawBody, signature)) {
+      return res.status(401).json({ error: "Invalid signature" });
+    }
+
+    const payload = JSON.parse(rawBody);
+    console.log("Verified event:", payload.event);
+
+    // Handle the event...
+    res.status(200).json({ received: true });
+  }
+);
+```
+
+<Tip>
+  Read the raw request body as a byte buffer **before** any JSON parsing middleware processes it. Once a framework parses the JSON, the raw body bytes are no longer available and signature verification will fail.
+</Tip>

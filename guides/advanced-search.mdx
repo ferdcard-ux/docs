@@ -1,0 +1,194 @@
+---
+title: "Advanced search operators and techniques"
+sidebarTitle: "Advanced Search"
+description: "Master Boolean operators, exact phrases, site filters, filetype search, date ranges, and combined queries to find precisely what you need."
+---
+
+Google's default search is powerful, but when you need surgical precision — pinpointing a document on a specific site, filtering results to a date range, or excluding irrelevant terms — search operators give you full control. This guide covers every major operator with real examples you can copy and adapt immediately.
+
+## Boolean operators
+
+Boolean logic lets you broaden, narrow, or exclude results by connecting keywords with logical conditions.
+
+<Tabs>
+  <Tab title="AND">
+    Google applies AND by default between all words you type. You rarely need to type it explicitly, but you can for clarity.
+
+    ```text title="AND example"
+    climate change AND renewable energy
+    ```
+
+    Both terms **must** appear in every result.
+  </Tab>
+  <Tab title="OR">
+    Use `OR` (uppercase) to retrieve results that contain either term. This is useful when a concept has multiple common names.
+
+    ```text title="OR example"
+    hurricane OR typhoon damage 2024
+    ```
+
+    Results match pages containing **at least one** of the terms around `OR`.
+  </Tab>
+  <Tab title="NOT / minus (-)">
+    Prepend a minus sign directly before a word (no space) to exclude results containing that term.
+
+    ```text title="NOT example"
+    jaguar speed -car
+    ```
+
+    This returns results about the animal, not the automobile.
+
+    <Note>
+      The `-` operator must be immediately adjacent to the word you want to exclude — `jaguar speed - car` (with a space) will not work as expected.
+    </Note>
+  </Tab>
+</Tabs>
+
+---
+
+## Exact phrase search
+
+Wrap your query in **double quotation marks** to require Google to return only pages that contain that exact sequence of words.
+
+```text title="Exact phrase examples"
+"machine learning for beginners"
+"to be or not to be"
+"annual report 2023"
+```
+
+<Tip>
+  Exact phrase search is especially useful for finding quotes, titles, or specific product names where word order matters.
+</Tip>
+
+---
+
+## Site-specific search with `site:`
+
+The `site:` operator restricts results to a single domain or subdomain.
+
+```text title="site: examples"
+site:docs.python.org list comprehension
+site:nytimes.com electric vehicles
+site:en.wikipedia.org quantum computing
+```
+
+You can also target a subdirectory:
+
+```text
+site:github.com/openai
+```
+
+<Note>
+  There is no space between `site:` and the domain. Adding a space breaks the operator and treats it as a keyword.
+</Note>
+
+---
+
+## File type search with `filetype:`
+
+Use `filetype:` to find documents of a specific format. Google indexes many common file types.
+
+```text title="filetype: examples"
+filetype:pdf annual report tesla 2023
+filetype:xlsx budget template
+filetype:pptx machine learning introduction
+```
+
+**Commonly indexed file types:**
+
+| Extension | Type |
+|-----------|------|
+| `pdf`     | PDF document |
+| `doc` / `docx` | Microsoft Word |
+| `xls` / `xlsx` | Microsoft Excel |
+| `ppt` / `pptx` | Microsoft PowerPoint |
+| `txt`     | Plain text |
+| `csv`     | Comma-separated values |
+
+---
+
+## Date range filters
+
+Limit results to a specific time window using the `before:` and `after:` operators, or use the visual **Tools** menu for interactive filtering.
+
+<Tabs>
+  <Tab title="before: and after: operators">
+    Use `YYYY-MM-DD` format for precise date targeting.
+
+    ```text title="Date operator examples"
+    # Results published before a date
+    SpaceX launch before:2022-01-01
+
+    # Results published after a date
+    AI regulation after:2023-06-01
+
+    # Results within a specific window
+    climate summit after:2023-01-01 before:2024-01-01
+    ```
+  </Tab>
+  <Tab title="Tools menu">
+    For a visual approach:
+
+    <Steps>
+      <Step title="Run your search">
+        Perform any search query on Google.
+      </Step>
+      <Step title="Open Tools">
+        Click **Tools** in the row of tabs beneath the search bar.
+      </Step>
+      <Step title="Select a time range">
+        Click the **Any time** dropdown and choose from preset ranges (past hour, 24 hours, week, month, year) or select **Custom range…** to enter specific start and end dates.
+      </Step>
+    </Steps>
+  </Tab>
+</Tabs>
+
+---
+
+## Combining multiple operators
+
+The real power of search operators comes from combining them. You can chain as many operators as needed in a single query.
+
+```text title="Combined operator examples"
+# PDF reports from a specific site within a date range
+site:sec.gov filetype:pdf annual report after:2023-01-01
+
+# Exact phrase on a specific domain, excluding a subdomain
+"neural networks" site:mit.edu -site:ocw.mit.edu
+
+# Either of two terms, on one site, in a date range
+(Python OR JavaScript) tutorial site:medium.com after:2023-06-01
+
+# Exclude a term and restrict file type
+filetype:pdf machine learning -"deep learning"
+```
+
+<Tip>
+  Use parentheses to group `OR` conditions when mixing operators, just as you would in a programming expression. This prevents ambiguity in how Google interprets the query.
+</Tip>
+
+---
+
+## Quick-reference operator table
+
+Use this table as a cheat sheet for the most useful search operators.
+
+| Operator | Syntax | What it does | Example |
+|----------|--------|--------------|---------|
+| AND | `term1 AND term2` | Both terms must appear | `privacy AND security` |
+| OR | `term1 OR term2` | Either term may appear | `Python OR Ruby tutorial` |
+| NOT / Minus | `-term` | Exclude pages with this term | `apple -fruit` |
+| Exact phrase | `"phrase"` | Match exact word sequence | `"open source license"` |
+| Site filter | `site:domain` | Restrict to one domain | `site:bbc.com climate` |
+| File type | `filetype:ext` | Match specific file format | `filetype:pdf report` |
+| Before date | `before:YYYY-MM-DD` | Results before this date | `before:2023-01-01` |
+| After date | `after:YYYY-MM-DD` | Results after this date | `after:2022-06-15` |
+| Wildcard | `*` | Match any single word | `"best * framework"` |
+| In title | `intitle:term` | Term must appear in page title | `intitle:tutorial` |
+| In URL | `inurl:term` | Term must appear in URL | `inurl:blog` |
+| Related | `related:domain` | Sites similar to this domain | `related:reddit.com` |
+| Cache | `cache:url` | View Google's cached copy | `cache:example.com` |
+
+<Warning>
+  Some operators — particularly `cache:` and `related:` — may return limited results or behave inconsistently as Google's index evolves. Always verify results when precision is critical.
+</Warning>

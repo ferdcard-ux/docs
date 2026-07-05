@@ -1,47 +1,152 @@
 ---
-title: "Quickstart"
-description: "Begin with a guide on the fastest path to a successful outcome"
+title: "Get started with Google Search in minutes"
+sidebarTitle: "Quickstart"
+description: "Follow this step-by-step guide to create an account, obtain an API key, and make your first Google Search API request in under 10 minutes."
 ---
 
-Describe how someone begins using your product. What is the first thing they need to do? Are there any prerequisites?
-
-A quickstart should take someone from zero to using your product. They'll get a quick win and a sense of what they can accomplish.
+This quickstart walks you through everything you need to go from zero to a live search result. By the end, you'll have a Google account, a working API key, and a real response from the Search API sitting in your terminal. The whole process takes less than ten minutes.
 
 ## Prerequisites
 
-Before you begin, you must have:
+Before you begin, make sure you have the following:
 
-- Requirement one (for example, Node.js 18+, a free account, an API key)
-- Requirement two (for example, a compatible device, a compatible browser, a compatible operating system)
+- A modern web browser to sign up and visit the API Console
+- `curl` installed on your machine **or** Python 3.7+ for the code examples below
+- A text editor or IDE to store your API key securely
 
-## Get started
+<Warning>
+  Never hard-code your API key directly into source code that you commit to version control. Use environment variables or a secrets manager instead. See the [Authentication](/authentication) guide for best practices.
+</Warning>
+
+## Steps
 
 <Steps>
-  <Step title="Install">
-    Describe how to install your product or sign up.
+  <Step title="Create a Google account">
+    Head to [google.com/signup](https://google.com/signup) and fill in your name, email address, and a strong password. If you already have a Google account, sign in at [google.com](https://google.com) — you're ready to move on.
 
-    ```bash
-    npm install your-package
-    ```
+    Once signed in, your account gives you access to personalized search history, saved preferences, and — most importantly for developers — the API Console.
   </Step>
-  <Step title="Configure">
-    Describe any setup or configuration needed before first use.
 
-    ```bash
-    your-cli init
-    ```
+  <Step title="Generate an API key">
+    Navigate to the [Google API Console](https://console.google.com) and follow these steps:
+
+    1. Click **Create Project** (or select an existing project from the dropdown).
+    2. In the left sidebar, select **APIs & Services → Credentials**.
+    3. Click **Create Credentials** and choose **API Key**.
+    4. Copy the generated key and store it somewhere safe — you'll need it in the next step.
+
+    <Note>
+      You can restrict your API key to specific IP addresses or HTTP referrers from the **Edit API Key** screen. This is strongly recommended for production use.
+    </Note>
   </Step>
-  <Step title="Run it">
-    Show the first thing a user does to see it working.
+
+  <Step title="Make your first search request">
+    With your API key in hand, you're ready to query the Search API. Choose your preferred method below — both examples search for the query `"open source projects"` and return the top 5 results.
+
+    Set your API key as an environment variable first:
 
     ```bash
-    your-cli start
+    export GOOGLE_API_KEY="your_api_key_here"
     ```
+
+    Now run the request:
+
+    <CodeGroup>
+      ```bash curl
+      curl -G "https://api.google.com/search/v1" \
+        --data-urlencode "q=open source projects" \
+        --data-urlencode "num=5" \
+        -H "Authorization: Bearer $GOOGLE_API_KEY"
+      ```
+
+      ```python Python
+      import os
+      import requests
+
+      API_KEY = os.environ["GOOGLE_API_KEY"]
+      BASE_URL = "https://api.google.com/search/v1"
+
+      params = {
+          "q": "open source projects",
+          "num": 5,
+      }
+      headers = {
+          "Authorization": f"Bearer {API_KEY}",
+      }
+
+      response = requests.get(BASE_URL, params=params, headers=headers)
+      response.raise_for_status()
+
+      data = response.json()
+      for item in data["results"]:
+          print(item["title"], "—", item["url"])
+      ```
+    </CodeGroup>
+  </Step>
+
+  <Step title="Interpret the response">
+    A successful request returns an HTTP `200` status and a JSON body. Here's what a typical response looks like:
+
+    ```json title="Example API Response"
+    {
+      "query": "open source projects",
+      "total_results": 4820000000,
+      "results": [
+        {
+          "rank": 1,
+          "title": "GitHub: Where the world builds software",
+          "url": "https://github.com",
+          "snippet": "GitHub is where over 100 million developers shape the future of software, together.",
+          "published_date": "2024-11-01"
+        },
+        {
+          "rank": 2,
+          "title": "Open Source Initiative",
+          "url": "https://opensource.org",
+          "snippet": "The Open Source Initiative is the steward of the Open Source Definition.",
+          "published_date": "2024-10-15"
+        }
+      ],
+      "next_page_token": "CAoQAA",
+      "search_time_ms": 142
+    }
+    ```
+
+    The key fields to know:
+
+    | Field | Type | Description |
+    |---|---|---|
+    | `query` | string | The search term you submitted |
+    | `total_results` | integer | Estimated number of matching pages in the index |
+    | `results` | array | Ordered list of result objects |
+    | `results[].rank` | integer | Position in the result set (1-indexed) |
+    | `results[].title` | string | Page title as it appears in the index |
+    | `results[].url` | string | Canonical URL of the result |
+    | `results[].snippet` | string | Short excerpt from the page content |
+    | `next_page_token` | string | Pass this value as `page_token` to fetch the next page |
+    | `search_time_ms` | integer | Server-side query execution time in milliseconds |
   </Step>
 </Steps>
 
-<Tip>
-  Give people a way to get help. This could be a link to a support page, a chat with a customer support agent, or a forum for your product.
+## What to do next
 
-  Example: Need help? Reach out to us at [support@yourcompany.com](mailto:support@yourcompany.com).
+You've made your first Search API request — here's where to go from here:
+
+<CardGroup cols={2}>
+  <Card title="Authentication" icon="key" href="/authentication">
+    Learn how to secure your API key, handle auth errors, and rotate credentials safely.
+  </Card>
+  <Card title="Advanced Search" icon="sliders" href="/guides/advanced-search">
+    Use search operators, date filters, and language constraints to get precise results.
+  </Card>
+  <Card title="Pagination" icon="arrow-right" href="/api/search">
+    Fetch additional pages of results using the `next_page_token` field.
+  </Card>
+  <Card title="API Reference" icon="book" href="/api/introduction">
+    Explore the full list of endpoints, query parameters, and response schemas.
+  </Card>
+</CardGroup>
+
+<Tip>
+  The Search API supports additional result types beyond web pages — including images, news articles, and videos. Check the `type` parameter in the [API Reference](/api/introduction) to filter by content type.
 </Tip>

@@ -1,0 +1,212 @@
+---
+title: "Troubleshoot common Google Search issues"
+sidebarTitle: "Troubleshooting"
+description: "Step-by-step fixes for the most common Google Search problems: no results, outdated content, API errors, rate limiting, widget failures, and missed alerts."
+---
+
+Most Google Search issues fall into a handful of predictable categories and can be resolved in a few minutes. Work through the relevant section below — each entry describes the symptom, the most likely cause, and the exact steps to fix it. If you complete all the steps and the problem persists, contact [Google Support](https://support.google.com).
+
+---
+
+## Search Returns No Results
+
+**Symptom:** You submit a query and see the message *"Your search did not match any documents"* or a completely empty results page.
+
+**Likely causes:**
+- Your query contains a typo or uses a very unusual phrase
+- SafeSearch is filtering results more aggressively than intended
+- You have applied too many search operators that together match nothing
+
+<Steps>
+  <Step title="Check for typos">
+    Review your query carefully. Google usually suggests a corrected spelling — if you see *"Did you mean: …"*, click the suggestion to search with the corrected term.
+  </Step>
+  <Step title="Simplify the query">
+    Remove special operators (quotes, minus signs, `site:`, `filetype:`) one at a time and re-run the search after each removal. Identify which operator is eliminating all results.
+  </Step>
+  <Step title="Check SafeSearch settings">
+    Go to **Settings → Search → SafeSearch**. If it is set to **Filter**, try switching to **Blur** and searching again. Some legitimate queries can be caught by aggressive filtering.
+  </Step>
+  <Step title="Try a broader query">
+    Replace a very specific phrase with individual keywords. For example, change `"widget configuration schema v2.3.1 changelog"` to `widget configuration changelog`.
+  </Step>
+</Steps>
+
+---
+
+## Results Seem Outdated or Irrelevant
+
+**Symptom:** Results show old information, pages that no longer exist, or content that seems unrelated to your actual interests.
+
+**Likely causes:**
+- Google's index has not yet crawled the newest version of a page
+- Personalization is surfacing results tailored to your past behavior
+- Browser cache is serving a stale version of the results page
+
+<Steps>
+  <Step title="Force a fresh page load">
+    Press **Ctrl + Shift + R** (Windows/Linux) or **Cmd + Shift + R** (Mac) to bypass the browser cache and reload the results page directly from Google's servers.
+  </Step>
+  <Step title="Use the date filter">
+    On the results page, click **Tools** (below the search bar) → **Any time** → choose **Past hour**, **Past 24 hours**, **Past week**, or a custom date range. This filters results to pages indexed in your chosen window.
+  </Step>
+  <Step title="Turn off personalization temporarily">
+    Add `&pws=0` to the end of your search URL to disable personalized results for that query. For example:
+    ```
+    https://www.google.com/search?q=python+tutorials&pws=0
+    ```
+  </Step>
+  <Step title="Clear your search history">
+    Personalization is based on your past searches. If results feel biased toward old interests, go to [myactivity.google.com](https://myactivity.google.com), delete your recent Search activity, and search again.
+
+    <Note>
+      For a page you know has been updated recently, use the `cache:` operator to check what Google has indexed: `cache:example.com/page`. The cached version includes a timestamp.
+    </Note>
+  </Step>
+</Steps>
+
+---
+
+## API Returns 401 / 403 Errors
+
+**Symptom:** Your API requests fail with HTTP `401 Unauthorized` or `403 Forbidden`.
+
+**Likely causes:**
+- The API key is missing from the request
+- The API key has been revoked
+- The key has domain or IP restrictions that block the current request origin
+- The key does not have access to the API you are calling
+
+<Steps>
+  <Step title="Confirm the key is present and correct">
+    Verify that your request includes the API key, either as a query parameter (`?key=YOUR_KEY`) or as an `Authorization: Bearer YOUR_KEY` header. Check for accidental whitespace or truncation.
+  </Step>
+  <Step title="Check whether the key is active">
+    Go to **Settings → API → Keys** and confirm the key's status shows **Active**. If it shows **Revoked**, generate a new key and update your application.
+  </Step>
+  <Step title="Review key restrictions">
+    Click **Restrict** on your key in the API settings panel. If an HTTP referrer restriction is set, make sure your request's `Referer` header matches an allowed domain. If an IP restriction is set, confirm the outbound IP of your server is in the allowlist.
+
+    <Tip>
+      During development, temporarily set the restriction to **None** to verify the key itself works. Re-apply restrictions before pushing to production.
+    </Tip>
+  </Step>
+  <Step title="Confirm API access is enabled">
+    In **Settings → API → Enabled APIs**, verify the specific API you are calling is listed as **Enabled**. Click **Enable** if it is not, then wait up to 60 seconds for the change to propagate.
+  </Step>
+</Steps>
+
+---
+
+## API Returns 429 Too Many Requests
+
+**Symptom:** Your API requests succeed for a while, then start returning HTTP `429` with a message like *"Quota exceeded"* or *"Rate limit exceeded"*.
+
+**Likely causes:**
+- You have exhausted your daily query quota
+- You are sending requests faster than your per-second rate limit allows
+
+<Steps>
+  <Step title="Check your quota usage">
+    Go to **Settings → API → Usage dashboard**. The dashboard shows queries used versus your daily cap and graphs your requests per second. Identify whether you've hit the daily cap or the per-second limit.
+  </Step>
+  <Step title="Implement exponential backoff">
+    For per-second throttling, implement exponential backoff in your client code — wait before retrying, and double the wait time on each successive failure:
+
+    ```python
+    import time
+
+    def search_with_backoff(query, max_retries=5):
+        wait = 1  # seconds
+        for attempt in range(max_retries):
+            response = call_search_api(query)
+            if response.status_code == 429:
+                time.sleep(wait)
+                wait *= 2
+            else:
+                return response
+        raise Exception("Max retries exceeded")
+    ```
+  </Step>
+  <Step title="Add client-side caching">
+    Cache identical queries in your application layer (Redis, Memcached, or even an in-memory dictionary) for at least 60 seconds. Many applications repeat the same search query in rapid succession — caching eliminates these redundant API calls.
+  </Step>
+  <Step title="Request a quota increase">
+    If you regularly hit the daily cap at your current tier, go to **Settings → API → Quota & Billing → Request quota increase** and submit a higher-quota request. See the [FAQ](/help/faq#api) for details on the request process.
+  </Step>
+</Steps>
+
+---
+
+## Search Widget Not Loading on My Website
+
+**Symptom:** A Google Search widget (Custom Search Element or Programmable Search Engine embed) shows a blank box, a spinner that never resolves, or a JavaScript console error.
+
+**Likely causes:**
+- The script tag for the Google Custom Search library is missing or blocked
+- Your domain is not listed as an authorized domain for the Programmable Search Engine
+- A Content Security Policy (CSP) on your site is blocking the Google script
+
+<Steps>
+  <Step title="Confirm the script tag is present">
+    In your page's HTML `<head>`, verify you have loaded the Custom Search script:
+
+    ```html
+    <script async src="https://cse.google.com/cse.js?cx=YOUR_ENGINE_ID"></script>
+    ```
+
+    Replace `YOUR_ENGINE_ID` with your engine's ID from the [Programmable Search Engine control panel](https://programmablesearchengine.google.com).
+  </Step>
+  <Step title="Check authorized domains">
+    1. Go to the [Programmable Search Engine control panel](https://programmablesearchengine.google.com).
+    2. Select your engine → **Setup → Basics → Sites to search**.
+    3. Ensure your website's domain is listed. If it is missing, click **Add** and enter your domain (e.g., `example.com/*`).
+  </Step>
+  <Step title="Review Content Security Policy headers">
+    Open your browser's DevTools (**F12**) → **Console** tab and look for CSP violation messages. If you see them, update your server's `Content-Security-Policy` header to allow Google's CSP domains:
+
+    ```
+    Content-Security-Policy: script-src 'self' https://cse.google.com https://www.google.com;
+                              frame-src https://cse.google.com https://www.google.com;
+    ```
+
+    <Warning>
+      Do not use `script-src *` as a quick fix — this disables the security benefit of CSP entirely. Add only the specific Google domains listed above.
+    </Warning>
+  </Step>
+  <Step title="Test in a clean browser profile">
+    Browser extensions (ad blockers, privacy tools) frequently block Google's scripts. Open your site in a fresh Incognito window with extensions disabled to rule out extension interference.
+  </Step>
+</Steps>
+
+---
+
+## Alerts Not Arriving
+
+**Symptom:** You created a Google Alert but emails never arrive, or they stopped arriving after working previously.
+
+**Likely causes:**
+- Alert emails are landing in your spam or promotions folder
+- The delivery email address is unverified or has a typo
+- Your alert query matches very little content at the chosen frequency
+
+<Steps>
+  <Step title="Check spam and other folders">
+    Search your entire mailbox for `from:alerts@google.com`. Look in **Spam**, **Promotions**, **Other**, and any custom filters that might be auto-archiving Google emails. If you find alert emails in spam, mark them **Not spam** and add `alerts@google.com` to your contacts to prevent future misclassification.
+  </Step>
+  <Step title="Verify the delivery address">
+    1. Go to [google.com/alerts](https://google.com/alerts).
+    2. Expand an alert and check the **Deliver to** field. Confirm it shows the correct address and that the address is spelled correctly.
+    3. If you recently changed your Google account email, update the delivery address to match.
+  </Step>
+  <Step title="Test with a broad query and real-time delivery">
+    Temporarily edit the alert to use a very common keyword (e.g., `technology`) and set **How often** to **As-it-happens**. If an email arrives within a few hours, the issue is that your original query matches too infrequently. Refine the query or switch to a weekly digest.
+  </Step>
+  <Step title="Delete and recreate the alert">
+    Occasionally an alert can enter a broken state. Delete the existing alert from [google.com/alerts](https://google.com/alerts) and create an identical one from scratch. This resets the delivery pipeline.
+
+    <Note>
+      If none of the steps above resolve the issue, your email provider may be blocking Google's sending IP ranges. Try creating the alert with an RSS feed as the delivery method instead of email: edit the alert, set **Deliver to** to **RSS feed**, and subscribe to the generated feed URL in your RSS reader.
+    </Note>
+  </Step>
+</Steps>

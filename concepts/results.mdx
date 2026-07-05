@@ -1,0 +1,156 @@
+---
+title: "Search results: types, structure, and ranking"
+sidebarTitle: "Results"
+description: "Understand the anatomy of a Google Search result, the different result types available, how ranking works, and how to paginate through large result sets via the API."
+---
+
+When Google returns results for your query, each item on the page is a structured object assembled from multiple data points — a title, a URL, a snippet, and optional metadata. Knowing how these components fit together, how Google decides which result to show first, and how to navigate deeper into the result set gives you precise control whether you're searching for yourself or building a search-powered application.
+
+## Anatomy of a Result
+
+Every standard web result shares a common structure, regardless of whether you're viewing it in a browser or consuming it through the API.
+
+<CardGroup cols={2}>
+  <Card title="Title" icon="heading">
+    The clickable headline of the result. Google generates this from the page's `<title>` tag or a prominent heading, and may rewrite it if the original title is misleading or too long.
+  </Card>
+  <Card title="URL" icon="link">
+    The canonical address of the page. Displayed in a "breadcrumb" format (e.g., `docs.google.com › search › overview`) so you can judge the source at a glance.
+  </Card>
+  <Card title="Snippet" icon="align-left">
+    A short excerpt automatically selected from the page's content. Google picks the passage most likely to answer your query, highlighting matching terms in bold.
+  </Card>
+  <Card title="Metadata" icon="circle-info">
+    Optional contextual details such as publication date, author byline, star rating, price, or availability — drawn from structured data markup on the source page.
+  </Card>
+</CardGroup>
+
+In the API response, these fields map to the following JSON properties on each `items[]` object:
+
+```json
+{
+  "title": "Climate change – Overview and causes",
+  "link": "https://example.com/climate-change/overview",
+  "displayLink": "example.com",
+  "snippet": "Climate change refers to long-term shifts in global temperatures and weather patterns...",
+  "pagemap": {
+    "metatags": [{ "article:published_time": "2024-03-15" }]
+  }
+}
+```
+
+## Result Types
+
+Google surfaces different result types depending on the nature of your query and how the source content is classified.
+
+<Tabs>
+  <Tab title="Web">
+    Standard organic web results — the default type. Each result is a ranked webpage with a title, URL, and snippet. Web results make up the majority of any results page.
+  </Tab>
+  <Tab title="Image">
+    Visual results returned when your query has strong image intent (e.g., "sunset wallpaper") or when you explicitly search Images. Each result includes a thumbnail, source URL, image dimensions, and file format.
+
+    ```bash
+    # Request image results via the API
+    curl "https://www.googleapis.com/customsearch/v1" \
+      --get \
+      --data-urlencode "q=northern lights" \
+      --data-urlencode "searchType=image" \
+      --data-urlencode "cx=YOUR_SEARCH_ENGINE_ID" \
+      --data-urlencode "key=YOUR_API_KEY"
+    ```
+  </Tab>
+  <Tab title="News">
+    Timely articles from news publishers, surfaced for queries with a current-events dimension (e.g., "election results 2024"). News results include a publication timestamp and source logo.
+  </Tab>
+  <Tab title="Video">
+    Video results — typically from YouTube or other video platforms — displayed when your query implies video content (e.g., "how to change a tire video"). Includes duration, uploader, and upload date.
+  </Tab>
+  <Tab title="Knowledge Panel">
+    A structured information box for recognized entities — people, companies, places, films, and more. Knowledge Panels pull facts from the Google Knowledge Graph and appear alongside or above organic results. They are not paginated.
+  </Tab>
+</Tabs>
+
+## Relevance and Ranking Factors
+
+Google ranks results using hundreds of signals evaluated simultaneously. The most significant factors fall into four categories.
+
+<Accordion title="Query relevance">
+  How closely the page's content matches the meaning and intent of your query. Google evaluates semantic similarity, not just keyword frequency — a page about "cardiac arrest" may rank for "heart attack" even if the exact phrase doesn't appear.
+</Accordion>
+
+<Accordion title="Page quality">
+  Google assesses the overall trustworthiness and expertise of a page and its domain. Signals include the quality of inbound links (PageRank), author credentials, content depth, and whether the page follows [helpful content guidelines](https://developers.google.com/search/docs/fundamentals/creating-helpful-content).
+</Accordion>
+
+<Accordion title="Freshness">
+  For time-sensitive queries (news, product releases, live events), recently published or recently updated pages receive a ranking boost. Evergreen content is less affected by freshness signals.
+</Accordion>
+
+<Accordion title="Usability and experience">
+  Core Web Vitals — page load speed, interactivity, and visual stability — contribute to ranking. Mobile-friendliness and HTTPS are also positive signals.
+</Accordion>
+
+<Note>
+  Google does not publicly document its full ranking algorithm. The factors listed above are confirmed by Google's official documentation and are among the most impactful, but the complete signal set is proprietary.
+</Note>
+
+## Pagination
+
+Google returns results in pages. By default, each page contains up to 10 results. Use the `start` and `num` parameters in the API to move through the full result set.
+
+| Parameter | Description | Range |
+|-----------|-------------|-------|
+| `num` | Number of results per page | 1–10 |
+| `start` | Index of the first result to return (1-based) | 1–91 |
+
+To retrieve results 11–20, set `start=11`. To retrieve results 21–30, set `start=21`, and so on.
+
+```bash
+# Retrieve results 11–20 for "data visualization tools"
+curl "https://www.googleapis.com/customsearch/v1" \
+  --get \
+  --data-urlencode "q=data visualization tools" \
+  --data-urlencode "cx=YOUR_SEARCH_ENGINE_ID" \
+  --data-urlencode "key=YOUR_API_KEY" \
+  --data-urlencode "start=11" \
+  --data-urlencode "num=10"
+```
+
+<Warning>
+  The maximum accessible result index is `start=91` with `num=10`, giving a practical ceiling of 100 results per query. Requests beyond this limit return an error. If you need deeper coverage, refine your query rather than paginating further.
+</Warning>
+
+The API response includes a `queries` object with `nextPage` and `previousPage` arrays that pre-populate the `start` value for you:
+
+```json
+{
+  "queries": {
+    "nextPage": [{ "startIndex": 21, "count": 10 }],
+    "previousPage": [{ "startIndex": 1, "count": 10 }]
+  }
+}
+```
+
+## Rich Results and Structured Data
+
+When a webpage uses [schema.org](https://schema.org) structured data markup, Google can generate **rich results** — visually enhanced listings that include additional information directly on the results page.
+
+<CardGroup cols={2}>
+  <Card title="Review Stars" icon="star">
+    Aggregate ratings and review counts for products, recipes, apps, and local businesses — sourced from `Review` or `AggregateRating` schema markup.
+  </Card>
+  <Card title="FAQ Dropdowns" icon="circle-question">
+    Expandable question-and-answer sections beneath a result, sourced from `FAQPage` schema markup on the source page.
+  </Card>
+  <Card title="Event Listings" icon="calendar">
+    Upcoming event dates, locations, and ticket links, sourced from `Event` schema markup.
+  </Card>
+  <Card title="Recipe Cards" icon="utensils">
+    Cook time, ingredient count, and calorie information, sourced from `Recipe` schema markup.
+  </Card>
+</CardGroup>
+
+<Tip>
+  If you're a developer publishing content, adding structured data markup dramatically increases the likelihood of earning rich results, which typically receive higher click-through rates than plain listings. Use Google's [Rich Results Test](https://search.google.com/test/rich-results) to validate your markup before publishing.
+</Tip>

@@ -1,0 +1,98 @@
+---
+title: "How Google Search works: platform overview"
+sidebarTitle: "Platform Overview"
+description: "Learn how Google's search pipeline transforms your query into ranked results, and how personalization, the API layer, and key data entities power the experience."
+---
+
+Google Search is a multi-stage platform that takes the words you type and returns the most relevant information from across the web in milliseconds. Understanding the architecture behind that process — from how your query travels through an index to how your account preferences shape what you see — helps you get more out of Search, whether you're an everyday user or a developer building on top of the API.
+
+## The Search Pipeline
+
+Every search you run passes through four core stages before results reach your screen.
+
+<Steps>
+  <Step title="Query">
+    You submit a query — a word, phrase, or question — through the search box or via the API. Google parses your input, identifies keywords, and applies spell correction, synonym expansion, and language detection before passing the query downstream.
+  </Step>
+  <Step title="Index">
+    Google's index is a map of hundreds of billions of web pages, continuously updated by web crawlers. The query is matched against this index to produce a candidate set of potentially relevant documents.
+  </Step>
+  <Step title="Ranking">
+    The candidate set is scored by ranking algorithms that weigh hundreds of signals — including relevance, page quality, freshness, and usability — to order results from most to least useful.
+  </Step>
+  <Step title="Results">
+    The ranked list is assembled into a results page (SERP) alongside rich features like Knowledge Panels, featured snippets, and suggestions, then delivered to you or returned as a structured API response.
+  </Step>
+</Steps>
+
+## Personalization
+
+Google tailors results to you based on context it collects over time. When you're signed in, Search draws on your activity to surface results that better match your interests and habits.
+
+<CardGroup cols={2}>
+  <Card title="Search History" icon="clock-rotate-left">
+    Past searches inform future result rankings. You can view and delete your history in [My Activity](https://myactivity.google.com).
+  </Card>
+  <Card title="Location" icon="location-dot">
+    Your device's location (or a manually set region) shapes results for local queries like "coffee near me" or news relevant to your country.
+  </Card>
+  <Card title="Language & Region Preferences" icon="globe">
+    Account language and region settings control which language results appear in and which regional index is queried by default.
+  </Card>
+  <Card title="SafeSearch" icon="shield-check">
+    Your SafeSearch setting filters explicit content. Administrators can lock this setting for managed accounts or devices.
+  </Card>
+</CardGroup>
+
+<Note>
+  Personalization only applies when you're signed into a Google Account. Signed-out searches use only your current location and browser language as context signals.
+</Note>
+
+## The API Layer
+
+Developers can access Google Search programmatically through the **Custom Search JSON API**, which exposes the same index and ranking pipeline in a structured format.
+
+```bash
+# Example: fetch the top 10 results for "climate change"
+curl "https://www.googleapis.com/customsearch/v1" \
+  --get \
+  --data-urlencode "q=climate change" \
+  --data-urlencode "cx=YOUR_SEARCH_ENGINE_ID" \
+  --data-urlencode "key=YOUR_API_KEY" \
+  --data-urlencode "num=10"
+```
+
+The API returns a JSON object you can parse, store, and render in your own applications. Key capabilities include:
+
+- **Keyword and phrase queries** with full Boolean operator support
+- **Filter parameters** for language, region, date range, file type, and safe search
+- **Pagination** via `start` and `num` parameters
+- **Image search** with dedicated endpoints
+
+<Tip>
+  Free-tier API usage is limited to 100 queries per day. For higher volumes, enable billing in the Google Cloud Console to unlock paid quota.
+</Tip>
+
+## Key Data Entities
+
+When you work with Google Search — either through the UI or the API — you'll encounter a consistent set of data entities.
+
+<Accordion title="Query">
+  A **Query** is the raw input string you submit to Search. It can be a single keyword, a multi-word phrase, a full sentence, or a structured expression using Boolean operators. Queries are parsed and enriched before they reach the index. See [Queries](/concepts/search) for a full breakdown.
+</Accordion>
+
+<Accordion title="Result">
+  A **Result** is a single item returned from the index. Each result includes a title, URL, snippet, and optional metadata such as date, author, or structured data markup. Results are typed — web, image, news, video, or shopping — and ranked by relevance score. See [Results](/concepts/results) for details.
+</Accordion>
+
+<Accordion title="Snippet">
+  A **Snippet** is the short excerpt shown beneath a result's title and URL. Google generates snippets automatically from the page's content, choosing the passage most likely to answer your query. Featured Snippets are elevated snippets that appear at the top of the results page.
+</Accordion>
+
+<Accordion title="Knowledge Panel">
+  A **Knowledge Panel** is a structured information box that appears for entities Google recognizes — people, places, organizations, or concepts. It aggregates facts from the Knowledge Graph and surfaces them alongside organic results.
+</Accordion>
+
+<Accordion title="Suggestion">
+  A **Suggestion** (also called an autocomplete or related search) is a query variant Google recommends based on popular searches and your history. Suggestions appear in the search box dropdown and at the bottom of the results page.
+</Accordion>

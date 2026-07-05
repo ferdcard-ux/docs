@@ -1,0 +1,155 @@
+---
+title: "Understanding queries and search intent"
+sidebarTitle: "Queries"
+description: "Explore how Google interprets what you type — from keyword and phrase queries to natural language — and learn the API parameters that shape every search request."
+---
+
+A query is the starting point of every search. What you type — or what your application sends programmatically — determines which documents Google considers and how it ranks them. Understanding how Google reads your query, infers what you actually want, and maps your words to billions of indexed pages helps you write better searches and build more effective search-powered applications.
+
+## What Is a Search Query?
+
+A **query** is the string of text you submit to Google Search. It can be as short as one word or as long as a full paragraph. Google does not search for documents that contain your exact characters — it interprets the meaning behind your words, expanding synonyms, correcting spelling, and inferring context before scanning the index.
+
+<Note>
+  Google processes over 8.5 billion queries per day. The vast majority are unique — phrased in ways no one has searched before — which is why intent modeling matters more than exact-match lookup.
+</Note>
+
+## Query Types
+
+Google handles three broad categories of query input, each suited to different use cases.
+
+<Tabs>
+  <Tab title="Keyword">
+    **Keyword queries** consist of one or more individual terms without grammatical structure.
+
+    ```
+    weather London
+    python list comprehension
+    best noise cancelling headphones
+    ```
+
+    Google infers relationships between the terms. `weather London` is treated as "weather in London," not a search for documents that contain both words anywhere on the page.
+  </Tab>
+  <Tab title="Phrase">
+    **Phrase queries** wrap terms in double quotes to require an exact sequence of words in results.
+
+    ```
+    "machine learning in healthcare"
+    "open source license"
+    "how to tie a bowline knot"
+    ```
+
+    Use phrase queries when word order matters — for example, when searching for a specific title, lyric, or code snippet.
+  </Tab>
+  <Tab title="Natural Language">
+    **Natural language queries** are full questions or conversational sentences.
+
+    ```
+    What is the capital of Australia?
+    How do I reset my password on Gmail?
+    Why is the sky blue?
+    ```
+
+    Google's natural language processing extracts the core intent and entity from the question, often returning a direct answer in a featured snippet or Knowledge Panel rather than a list of links.
+  </Tab>
+</Tabs>
+
+## Search Intent
+
+Beyond syntax, Google classifies every query by the **underlying intent** of the person who typed it. Ranking algorithms use intent to decide which result types to surface.
+
+<CardGroup cols={3}>
+  <Card title="Informational" icon="circle-info">
+    The user wants to learn something. Results typically include articles, explainers, Wikipedia entries, and featured snippets.
+
+    *Example: "how does photosynthesis work"*
+  </Card>
+  <Card title="Navigational" icon="compass">
+    The user wants to reach a specific site or page. Google usually returns the target site as the top result.
+
+    *Example: "YouTube Studio login"*
+  </Card>
+  <Card title="Transactional" icon="bag-shopping">
+    The user wants to complete an action — buy, download, sign up, or book. Results include shopping listings, app stores, and service pages.
+
+    *Example: "buy iPhone 16 Pro"*
+  </Card>
+</CardGroup>
+
+<Tip>
+  When building a search-powered product, tag your query logs by intent type. Informational queries benefit from snippet highlighting; transactional queries benefit from price and availability metadata.
+</Tip>
+
+## API Query Parameters
+
+When you access Search through the Custom Search JSON API, you control query behavior through a set of URL parameters.
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `q` | `string` | The query string. Required for every request. |
+| `lang` | `string` | Restricts results to a specific language (e.g., `lang_en`, `lang_fr`). |
+| `gl` | `string` | Sets the geolocation of the end user (two-letter country code, e.g., `us`, `gb`). |
+| `safe` | `string` | SafeSearch level: `active` to filter explicit content, `off` to disable filtering. |
+| `num` | `integer` | Number of results to return per page (1–10). Default is `10`. |
+| `start` | `integer` | Index of the first result to return. Use with `num` for pagination. |
+
+```bash
+# Search for "renewable energy" in English, restricted to US results, with SafeSearch on
+curl "https://www.googleapis.com/customsearch/v1" \
+  --get \
+  --data-urlencode "q=renewable energy" \
+  --data-urlencode "cx=YOUR_SEARCH_ENGINE_ID" \
+  --data-urlencode "key=YOUR_API_KEY" \
+  --data-urlencode "lang=lang_en" \
+  --data-urlencode "gl=us" \
+  --data-urlencode "safe=active"
+```
+
+<Warning>
+  The `q` parameter is URL-encoded by the client. Do not manually encode spaces as `+` — use `%20` or rely on your HTTP library's URL encoding. Incorrect encoding can alter query meaning or cause API errors.
+</Warning>
+
+## Boolean Operators
+
+Boolean operators let you construct precise queries by explicitly defining logical relationships between terms. They work in both the search box and the `q` API parameter.
+
+<Accordion title="AND — require multiple terms">
+  By default, Google treats spaces between words as implicit AND. You can make this explicit with the `AND` operator (uppercase required).
+
+  ```
+  climate AND policy
+  ```
+
+  Both "climate" and "policy" must appear in every result.
+</Accordion>
+
+<Accordion title="OR — allow alternative terms">
+  Use `OR` to retrieve results that contain either term.
+
+  ```
+  javascript OR typescript tutorial
+  ```
+
+  Results may contain "javascript tutorial," "typescript tutorial," or pages that discuss both.
+</Accordion>
+
+<Accordion title="NOT (minus sign) — exclude terms">
+  Prefix a term with `-` to exclude results that contain it.
+
+  ```
+  python -snake
+  jaguar -car -football
+  ```
+
+  Google filters out any result that includes the excluded term, sharpening results for the intended meaning.
+</Accordion>
+
+<Accordion title="Combining operators">
+  You can chain operators in a single query for fine-grained control.
+
+  ```
+  (javascript OR typescript) tutorial -beginner
+  ```
+
+  This returns tutorials for either language that are not targeted at beginners.
+</Accordion>

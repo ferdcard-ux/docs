@@ -1,0 +1,200 @@
+---
+title: "API rate limits, quotas, and retry strategy"
+sidebarTitle: "Rate Limits"
+description: "Understand Google Search API quotas, read rate-limit response headers, handle HTTP 429 errors, and implement exponential backoff with jitter."
+---
+
+The Google Search API enforces per-project quotas to ensure fair usage and protect service stability for all users. Understanding how quotas work — and building your integration to handle limit errors gracefully — will save you from unexpected downtime and data gaps in production. This guide covers the default quota tiers, the response headers you can use for real-time monitoring, and a retry strategy you can drop straight into your codebase.
+
+## Default quotas
+
+| Tier | Daily query limit | Cost |
+|---|---|---|
+| **Free** | 100 queries / day | No charge |
+| **Paid** | Up to 10,000 queries / day | Billed per 1,000 queries above the free threshold |
+
+Quotas reset at **midnight Pacific Time** each calendar day. Usage is counted per API key, not per user or IP address.
+
+<Note>
+  The 100 free queries per day are shared across all keys in a project that target the same Custom Search Engine. If you have multiple keys, their usage is pooled under your project's quota.
+</Note>
+
+---
+
+## Rate-limit response headers
+
+Every API response — successful or not — includes three headers that tell you exactly where you stand in your current quota window.
+
+| Header | Type | Description |
+|---|---|---|
+| `X-RateLimit-Limit` | `integer` | The maximum number of queries allowed in the current window. |
+| `X-RateLimit-Remaining` | `integer` | The number of queries you can still make before hitting the limit. |
+| `X-RateLimit-Reset` | `integer` (Unix timestamp) | The UTC time at which the quota window resets and `X-RateLimit-Remaining` returns to `X-RateLimit-Limit`. |
+
+<ResponseField name="X-RateLimit-Limit" type="integer">
+  Total queries permitted in the current quota window, based on your tier.
+</ResponseField>
+
+<ResponseField name="X-RateLimit-Remaining" type="integer">
+  Queries remaining before the API begins returning `429` responses. Poll this value to implement proactive throttling before you ever hit a hard limit.
+</ResponseField>
+
+<ResponseField name="X-RateLimit-Reset" type="integer">
+  Unix timestamp (seconds since epoch) when the quota counter resets. Convert this to a human-readable time with `new Date(reset * 1000)` in JavaScript or `datetime.fromtimestamp(reset)` in Python.
+</ResponseField>
+
+---
+
+## HTTP 429 — Too Many Requests
+
+When you exceed your quota, the API returns an **HTTP 429** status code with a JSON body that explains the limit that was hit.
+
+```json
+{
+  "error": {
+    "code": 429,
+    "message": "Quota exceeded for quota metric 'customsearch.googleapis.com/requests' and limit 'Queries per day' of service 'customsearch.googleapis.com'.",
+    "status": "RESOURCE_EXHAUSTED",
+    "details": [
+      {
+        "@type": "type.googleapis.com/google.rpc.QuotaFailure",
+        "violations": [
+          {
+            "subject": "project:YOUR_PROJECT_ID",
+            "description": "Quota exceeded for quota metric 'customsearch.googleapis.com/requests'."
+          }
+        ]
+      }
+    ]
+  }
+}
+```
+
+<Warning>
+  Do not immediately retry a `429` response in a tight loop. Rapid retries worsen the congestion problem and will not succeed until the quota window resets. Always use a backoff strategy (see below).
+</Warning>
+
+---
+
+## Retry strategy: exponential backoff with jitter
+
+The recommended approach for handling transient errors and `429` responses is **exponential backoff with full jitter**. Each retry waits for a progressively longer interval, and the jitter component spreads retries out so that multiple clients do not all hammer the API at the same moment.
+
+<CodeGroup>
+
+```python Python
+import time
+import random
+import requests
+
+def search_with_backoff(query: str, api_key: str, max_retries: int = 5) -> dict:
+    """Execute a search query with exponential backoff on 429 and 5xx errors."""
+    base_url = "https://www.googleapis.com/customsearch/v1"
+    params = {"q": query, "key": api_key, "cx": "YOUR_SEARCH_ENGINE_ID"}
+
+    for attempt in range(max_retries):
+        response = requests.get(base_url, params=params)
+
+        if response.status_code == 200:
+            return response.json()
+
+        if response.status_code in (429, 500, 502, 503, 504):
+            # Exponential backoff: 1s, 2s, 4s, 8s, 16s — plus random jitter
+            wait = (2 ** attempt) + random.uniform(0, 1)
+            print(f"Attempt {attempt + 1} failed ({response.status_code}). "
+                  f"Retrying in {wait:.2f}s...")
+            time.sleep(wait)
+        else:
+            # Non-retryable error — raise immediately
+            response.raise_for_status()
+
+    raise RuntimeError(f"Request failed after {max_retries} retries.")
+```
+
+```javascript JavaScript
+async function searchWithBackoff(query, apiKey, maxRetries = 5) {
+  const baseUrl = "https://www.googleapis.com/customsearch/v1";
+  const params = new URLSearchParams({
+    q: query,
+    key: apiKey,
+    cx: "YOUR_SEARCH_ENGINE_ID",
+  });
+
+  for (let attempt = 0; attempt < maxRetries; attempt++) {
+    const response = await fetch(`${baseUrl}?${params}`);
+
+    if (response.ok) {
+      return response.json();
+    }
+
+    const retryable = [429, 500, 502, 503, 504].includes(response.status);
+
+    if (retryable) {
+      // Exponential backoff: 1s, 2s, 4s, 8s, 16s — plus random jitter
+      const wait = 2 ** attempt * 1000 + Math.random() * 1000;
+      console.warn(
+        `Attempt ${attempt + 1} failed (${response.status}). Retrying in ${(wait / 1000).toFixed(2)}s...`
+      );
+      await new Promise((resolve) => setTimeout(resolve, wait));
+    } else {
+      throw new Error(`Non-retryable error: ${response.status}`);
+    }
+  }
+
+  throw new Error(`Request failed after ${maxRetries} retries.`);
+}
+```
+
+</CodeGroup>
+
+<Tip>
+  Check the `X-RateLimit-Reset` header on a `429` response and wait until that timestamp rather than guessing a backoff interval. This is more efficient than exponential backoff when you know exactly how long the quota window lasts.
+</Tip>
+
+---
+
+## Requesting a quota increase
+
+If 10,000 queries per day is insufficient for your use case, you can request a higher limit through the Google Cloud Console:
+
+1. Open **APIs & Services → Quotas** in the [Google Cloud Console](https://console.cloud.google.com/iam-admin/quotas).
+2. Filter by **Custom Search API**.
+3. Select the **Queries per day** quota row and click **Edit quotas**.
+4. Enter your desired limit and submit the request form.
+
+Google typically reviews quota increase requests within one to three business days. You'll receive an email confirmation when the change takes effect.
+
+---
+
+## Best practices
+
+Following these patterns will help you stay within quota, reduce unnecessary spend, and build a more resilient integration.
+
+<Expandable title="Cache results">
+  Search results for a given query rarely change within a short window. Cache responses in a fast store such as Redis or Memcached and serve them directly for repeated queries. Even a 60-second TTL can eliminate a significant portion of redundant API calls during traffic spikes.
+
+  ```python
+  import hashlib, json
+  import redis
+
+  cache = redis.Redis()
+  TTL_SECONDS = 60
+
+  def cached_search(query: str, api_key: str) -> dict:
+      cache_key = "search:" + hashlib.sha256(query.encode()).hexdigest()
+      cached = cache.get(cache_key)
+      if cached:
+          return json.loads(cached)
+      result = search_with_backoff(query, api_key)
+      cache.setex(cache_key, TTL_SECONDS, json.dumps(result))
+      return result
+  ```
+</Expandable>
+
+<Expandable title="Batch queries thoughtfully">
+  The Custom Search API does not support a native batch endpoint, but you can reduce round-trips by designing your application to consolidate related queries. For example, instead of firing one query per user keystroke, debounce input and send a single query after the user pauses typing for 300–500 ms.
+</Expandable>
+
+<Expandable title="Monitor usage proactively">
+  Don't wait for a `429` to learn you're running low. Read `X-RateLimit-Remaining` on every response and emit a metric or log a warning when you drop below a threshold — for example, 20% of your daily quota remaining. Set up an alert in your monitoring platform to page on-call before you hit zero.
+</Expandable>

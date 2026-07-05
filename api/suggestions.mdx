@@ -1,0 +1,134 @@
+---
+title: "GET /suggestions — autocomplete query suggestions"
+sidebarTitle: "GET /suggestions"
+description: "Retrieve real-time autocomplete suggestions for a partial search query, localised by language and country, to power search-as-you-type UI experiences."
+---
+
+The Suggestions endpoint returns Google's autocomplete predictions for a partial query string. You can use it to power search-as-you-type input fields, helping users discover relevant queries before they finish typing. The response is a lightweight JSON array driven by real search volume signals, and you can localise it by specifying a language and country code. This endpoint is hosted on a separate domain from the main Custom Search API.
+
+## Endpoint
+
+```
+GET https://suggestqueries.google.com/complete/search
+```
+
+<Note>
+  This endpoint is served from `suggestqueries.google.com`, not the standard `googleapis.com` base URL. Ensure your network configuration and any API gateway allow-lists include this domain.
+</Note>
+
+## Request Parameters
+
+<ParamField query="q" type="string" required>
+  The partial search query for which you want autocomplete suggestions. For best results, pass the text the user has typed so far, updated on each keystroke or with a short debounce delay.
+</ParamField>
+
+<ParamField query="client" type="string" required>
+  Specifies the response format. You must pass `"firefox"` to receive JSON output. Other client values return a JavaScript callback-wrapped format that is not suitable for direct JSON parsing.
+</ParamField>
+
+<ParamField query="hl" type="string">
+  The BCP 47 language code for the suggestions, such as `"en"`, `"fr"`, or `"de"`. Determines the language of the returned suggestion strings. Defaults to `"en"` when not specified.
+</ParamField>
+
+<ParamField query="gl" type="string">
+  An ISO 3166-1 alpha-2 country code that localises suggestions to a specific region, such as `"us"`, `"gb"`, or `"jp"`. When provided, suggestions reflect trending and popular queries in that country.
+</ParamField>
+
+## Response Structure
+
+The endpoint returns a JSON array with the following structure:
+
+| Index | Type | Description |
+|-------|------|-------------|
+| `[0]` | string | The original query string you submitted. |
+| `[1]` | array of strings | The list of autocomplete suggestion strings. |
+| `[2]` | array | Additional metadata per suggestion (typically empty arrays). |
+| `[3]` | object | Response metadata such as `"google:suggesttype"` annotations. |
+
+Your application primarily uses index `[1]`, which contains the suggestion strings to display.
+
+## Example
+
+<CodeGroup>
+
+```bash curl
+curl -G "https://suggestqueries.google.com/complete/search" \
+  --data-urlencode "q=google search" \
+  --data-urlencode "client=firefox" \
+  --data-urlencode "hl=en" \
+  --data-urlencode "gl=us"
+```
+
+```python Python
+import requests
+
+params = {
+    "q": "google search",
+    "client": "firefox",
+    "hl": "en",
+    "gl": "us",
+}
+
+response = requests.get(
+    "https://suggestqueries.google.com/complete/search",
+    params=params,
+)
+response.raise_for_status()
+data = response.json()
+
+suggestions = data[1]
+for suggestion in suggestions:
+    print(suggestion)
+```
+
+```javascript JavaScript
+const params = new URLSearchParams({
+  q: "google search",
+  client: "firefox",
+  hl: "en",
+  gl: "us",
+});
+
+const response = await fetch(
+  `https://suggestqueries.google.com/complete/search?${params}`
+);
+const data = await response.json();
+
+const suggestions = data[1];
+suggestions.forEach((s) => console.log(s));
+```
+
+</CodeGroup>
+
+### Example Response
+
+```json
+[
+  "google search",
+  [
+    "google search api",
+    "google search console",
+    "google search operators",
+    "google search history",
+    "google search trends",
+    "google search tips",
+    "google search engine",
+    "google search ads"
+  ],
+  [[], [], [], [], [], [], [], []],
+  {
+    "google:suggesttype": [
+      "QUERY", "QUERY", "QUERY", "QUERY",
+      "QUERY", "QUERY", "QUERY", "QUERY"
+    ]
+  }
+]
+```
+
+<Tip>
+  Debounce calls to this endpoint by 150–300 ms as the user types to avoid sending a request on every keystroke. This keeps your application responsive while staying within reasonable request rates.
+</Tip>
+
+<Warning>
+  The Suggestions endpoint does not require an API key, but it is rate-limited by IP address. For high-traffic applications, consider caching suggestion results for a short period (e.g., 60 seconds) for common query prefixes to reduce the number of outbound requests.
+</Warning>

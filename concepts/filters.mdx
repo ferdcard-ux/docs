@@ -1,0 +1,216 @@
+---
+title: "Search filters: narrow and refine your results"
+sidebarTitle: "Filters"
+description: "Learn how to use Google Search filters — by date, file type, site, language, and more — through the UI, the API, and inline search operators to find exactly what you need."
+---
+
+Filters let you slice the results set down to exactly the content you're looking for. Instead of scrolling through hundreds of broadly matched results, you apply constraints — a date window, a specific domain, a file format, a language — and Google returns only the subset that meets every condition. You can apply filters through the Search UI, through API parameters, or directly inside the query string using search operators.
+
+## What Filters Do
+
+A filter is a constraint you place on the results pool after Google identifies candidate pages. Filters do not change how Google scores relevance; they remove results that fall outside the boundaries you define.
+
+<CardGroup cols={2}>
+  <Card title="Narrow by type" icon="layer-group">
+    Restrict results to a specific content type — web pages, images, news articles, videos, or files of a particular format.
+  </Card>
+  <Card title="Narrow by date" icon="calendar-days">
+    Surface only content published or updated within a specific time window, from the past hour to a custom date range.
+  </Card>
+  <Card title="Narrow by source" icon="globe">
+    Limit results to a single domain or website, so you're searching within a known, trusted source.
+  </Card>
+  <Card title="Narrow by language or region" icon="flag">
+    Return results written in a specific language or originating from a specific country's regional index.
+  </Card>
+</CardGroup>
+
+## Filter Categories
+
+### Date Range
+
+Date filters restrict results to content published or significantly updated within a time window. In the Search UI, click **Tools** on the results page and select from preset ranges or set a custom range.
+
+| UI Option | Coverage |
+|-----------|----------|
+| Past hour | Last 60 minutes |
+| Past 24 hours | Last day |
+| Past week | Last 7 days |
+| Past month | Last 30 days |
+| Past year | Last 365 days |
+| Custom range | Any start and end date you specify |
+
+In the API, use the `dateRestrict` parameter:
+
+```bash
+# Results published in the last week
+--data-urlencode "dateRestrict=w1"
+
+# Results published in the last 3 months
+--data-urlencode "dateRestrict=m3"
+
+# Results published in the last 2 years
+--data-urlencode "dateRestrict=y2"
+```
+
+The format is a letter (`d` = day, `w` = week, `m` = month, `y` = year) followed by a number.
+
+---
+
+### File Type
+
+File type filters return documents of a specific format. This is especially useful when you need a PDF report, a spreadsheet template, or a presentation.
+
+Supported file types include: `pdf`, `doc`, `docx`, `xls`, `xlsx`, `ppt`, `pptx`, `txt`, `csv`, `xml`, and more.
+
+In the API, use the `fileType` parameter:
+
+```bash
+--data-urlencode "fileType=pdf"
+```
+
+---
+
+### Site
+
+Site filters confine results to a single domain or subdomain. Use them when you trust a specific source and want to search within it.
+
+---
+
+### Language
+
+The `lr` (language restrict) parameter limits results to pages written in a specific language.
+
+```bash
+--data-urlencode "lr=lang_de"   # German only
+--data-urlencode "lr=lang_ja"   # Japanese only
+--data-urlencode "lr=lang_es"   # Spanish only
+```
+
+---
+
+### SafeSearch
+
+SafeSearch filters explicit sexual and violent content from results. It applies globally to all result types.
+
+```bash
+--data-urlencode "safe=active"   # Filter explicit content
+--data-urlencode "safe=off"      # No filtering
+```
+
+<Warning>
+  If your application serves minors, always set `safe=active`. In some regions, SafeSearch may be locked on by local law or organizational policy and cannot be overridden by the API caller.
+</Warning>
+
+## Applying Filters: UI vs. API
+
+<Tabs>
+  <Tab title="Search UI">
+    In the browser, filters are accessible without any query syntax:
+
+    <Steps>
+      <Step title="Run your query">
+        Enter your query in the Google Search box and press Enter.
+      </Step>
+      <Step title="Select a result type">
+        Click one of the type tabs directly below the search box — **All**, **Images**, **News**, **Videos**, **Shopping**, or **More** — to filter by content type.
+      </Step>
+      <Step title="Open Tools">
+        Click **Tools** (to the right of the type tabs) to reveal additional filter controls: date range and sort order for web results, size and color for images, and so on.
+      </Step>
+      <Step title="Apply your filter">
+        Select the filter value. The results page reloads automatically with your constraint applied. Active filters are shown as chips below the search box.
+      </Step>
+    </Steps>
+  </Tab>
+  <Tab title="API">
+    Pass filter parameters alongside your `q` value in the API request. Multiple filters combine with implicit AND — every filter you add further narrows the result set.
+
+    ```bash
+    # PDF documents about "carbon capture" published in the last year,
+    # in English, from a US regional index, with SafeSearch on
+    curl "https://www.googleapis.com/customsearch/v1" \
+      --get \
+      --data-urlencode "q=carbon capture" \
+      --data-urlencode "cx=YOUR_SEARCH_ENGINE_ID" \
+      --data-urlencode "key=YOUR_API_KEY" \
+      --data-urlencode "fileType=pdf" \
+      --data-urlencode "dateRestrict=y1" \
+      --data-urlencode "lr=lang_en" \
+      --data-urlencode "gl=us" \
+      --data-urlencode "safe=active"
+    ```
+
+    <Tip>
+      Combining multiple filters reduces result volume significantly. If you get zero results, loosen one filter at a time — start by removing the date restriction, then the file type — until results appear.
+    </Tip>
+  </Tab>
+</Tabs>
+
+## Search Operators as Inline Filters
+
+You can embed filters directly in the query string using **search operators**. These work in both the Search UI and in the `q` API parameter, making them portable across contexts.
+
+<Accordion title="site: — restrict to a domain">
+  Returns results only from the specified domain or subdomain.
+
+  ```
+  site:developer.chrome.com performance
+  site:en.wikipedia.org quantum computing
+  ```
+
+  Use `site:` without a query term to audit all indexed pages from a domain:
+
+  ```
+  site:yourcompany.com
+  ```
+</Accordion>
+
+<Accordion title="filetype: — restrict to a file format">
+  Returns documents of the specified file type.
+
+  ```
+  filetype:pdf annual report 2023
+  filetype:csv population data
+  filetype:pptx machine learning introduction
+  ```
+</Accordion>
+
+<Accordion title="before: — results published before a date">
+  Returns only content published before the specified date (format: `YYYY-MM-DD`).
+
+  ```
+  blockchain technology before:2020-01-01
+  ```
+</Accordion>
+
+<Accordion title="after: — results published after a date">
+  Returns only content published after the specified date (format: `YYYY-MM-DD`).
+
+  ```
+  remote work productivity after:2023-06-01
+  ```
+</Accordion>
+
+<Accordion title="Combining operators">
+  Operators compose naturally — just include multiple operators in the same query string.
+
+  ```
+  site:github.com filetype:md contributing guide after:2022-01-01
+  ```
+
+  This returns Markdown files on GitHub about contributing guides published after January 2022.
+</Accordion>
+
+## Example Filtered Queries
+
+The table below shows practical filter combinations for common research tasks.
+
+| Goal | Query |
+|------|-------|
+| Find PDFs about GDPR on EU government sites | `GDPR filetype:pdf site:.europa.eu` |
+| Find news about AI published this year | `artificial intelligence after:2024-01-01` |
+| Search a specific docs site | `authentication site:docs.stripe.com` |
+| Find Spanish-language results about travel | Query: `viajes`, API: `lr=lang_es` |
+| Exclude content older than 2023 | `climate report after:2023-12-31` |
+| Find Excel templates for budgeting | `budget template filetype:xlsx` |
